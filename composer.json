@@ -1,9 +1,9 @@
 {
-    "name": "UF CustomProfileFields",
+    "name": "UF Custom User Profile Field Sprinkle",
     "type": "sprinkle",
     "description": "Custom Profile Fields for UserFrosting V4",
     "keywords": ["userfrosting"],
-    "homepage": "https://github.com/lcharette/UF_CustomProfileFields",
+    "homepage": "https://github.com/lcharette/UF_UserProfile",
     "license" : "MIT",
     "authors" : [
         {
@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "UserFrosting\\Sprinkle\\CustomProfileFields\\": "src/"
+            "UserFrosting\\Sprinkle\\UserProfile\\": "src/"
         }
     }
 }

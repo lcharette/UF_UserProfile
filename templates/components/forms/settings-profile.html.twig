@@ -1,0 +1,6 @@
+{% extends "@account/components/forms/settings-profile.html.twig" %}
+
+{% block settings_profile %}
+    {{ parent() }}
+    {% include 'FormGenerator/FormGenerator.html.twig' with {fields: customFields} %}
+{% endblock %}

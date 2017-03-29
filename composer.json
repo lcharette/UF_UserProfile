@@ -1,6 +1,6 @@
 {
-    "name": "UF Custom User Profile Field Sprinkle",
-    "type": "sprinkle",
+    "name": "lcharette/UF_UserProfile",
+    "type": "userfrosting-sprinkle",
     "description": "Custom Profile Fields for UserFrosting V4",
     "keywords": ["userfrosting"],
     "homepage": "https://github.com/lcharette/UF_UserProfile",
@@ -19,5 +19,8 @@
         "psr-4": {
             "UserFrosting\\Sprinkle\\UserProfile\\": "src/"
         }
+    },
+    "extra": {
+        "installer-name": "UserProfile"
     }
 }

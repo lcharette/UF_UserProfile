@@ -2,23 +2,12 @@
 
 
 ## Install
-`cd` into the sprinkle directory of UserFrosting and clone as submodule:
+Edit UserFrosting `app/sprinkles/sprinkles.json` file and add the following to the `require` list :
 ```
-git submodule add git@github.com:lcharette/UF_UserProfile.git UserProfile
+"lcharette/uf_userprofile": "dev-develop"
 ```
 
-### Install dependencies
-This sprinkle requires the `FormGenerator` sprinkle. You'll find instruction on how to install it here : https://github.com/lcharette/UF_FormGenerator
-
-### Add to the sprinkle list
-Edit UserFrosting `app/sprinkles/sprinkles.json` file and add `UserProfile` to the sprinkle list to enable it.
-
-### Update the assets build & composer
-From the UserFrosting `/build` folder, run `npm run uf-assets-install`
-You may also need to run `composer update` from the `app/` folder.
-
-### Install database migrations
-Go to the `migrations/` directory and run `php install.php`.
+Run `composer update` then `composer run-script bake` to install the sprinkle.
 
 # Usage
 

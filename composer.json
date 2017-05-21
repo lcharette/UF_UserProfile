@@ -1,5 +1,5 @@
 {
-    "name": "lcharette/UF_UserProfile",
+    "name": "lcharette/uf_userprofile",
     "type": "userfrosting-sprinkle",
     "description": "Custom Profile Fields for UserFrosting V4",
     "keywords": ["userfrosting"],

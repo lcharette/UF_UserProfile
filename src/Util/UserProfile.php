@@ -36,39 +36,50 @@ class UserProfile
 
     /**
      * getFieldsSchema function.
-     * Return the json schema for the user custom profile fields
+     * Return the json schema for the user custom profile fields. Use the cache if the config is on
+     * return directly otherwise
      *
      * @access public
      * @return void
      */
     public function getFieldsSchema()
     {
-        return $this->ci->cache->rememberForever('profileFieldsSchemas', function () {
+        $config = $this->ci->config;
+        $cache = $this->ci->cache;
 
-            $schemas = array();
+        if ($config['profileFields.useCache']) {
+            return $cache->rememberForever('profileFieldsSchemas', $this->getFieldsSchemaRaw());
+        } else {
+            return $this->getFieldsSchemaRaw();
+        }
+    }
 
-            // Get all the location where we can find config schemas
-            $paths = array_reverse($this->ci->locator->findResources('schema://profileFields', true, false));
+    protected function getFieldsSchemaRaw()
+    {
+        $schemas = array();
+        $locator = $this->ci->locator;
 
-            // For every location...
-            foreach ($paths as $path) {
+        // Get all the location where we can find config schemas
+        $paths = array_reverse($locator->findResources('schema://userProfile', true, false));
 
-                // Get a list of all the schemas file
-                $files_with_path = glob($path . "/*.json");
+        // For every location...
+        foreach ($paths as $path) {
 
-                // Load every found files
-                foreach ($files_with_path as $file) {
+            // Get a list of all the schemas file
+            $files_with_path = glob($path . "/*.json");
 
-                    // Load the file content
-                    $schema = $this->loadSchema($file);
+            // Load every found files
+            foreach ($files_with_path as $file) {
 
-                    // Add to list
-                    $schemas = array_merge($schemas, $schema);
-                }
+                // Load the file content
+                $schema = $this->loadSchema($file);
+
+                // Add to list
+                $schemas = array_merge($schemas, $schema);
             }
+        }
 
-            return $schemas;
-        });
+        return $schemas;
     }
 
     /**

@@ -178,43 +178,6 @@ class UserProfileController extends UserController
     }
 
     /**
-     * Returns a list of Owlers
-     *
-     * Overrides the base `UserController:getList` method, to display additional user fields.
-     * Request type: GET
-     */
-    public function getList($request, $response, $args)
-    {
-        // GET parameters
-        $params = $request->getQueryParams();
-
-        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
-        $authorizer = $this->ci->authorizer;
-
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
-        $currentUser = $this->ci->currentUser;
-
-        // Access-controlled page
-        if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
-            throw new ForbiddenException();
-        }
-
-        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
-        $classMapper = $this->ci->classMapper;
-
-        $sprunje = $classMapper->createInstance('user_sprunje', $classMapper, $params);
-        /*
-            $sprunje = new UserSprunje($classMapper, $params);
-        $sprunje->extendQuery(function ($query) {
-            return $query->with('owler');
-        });*/
-
-        // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
-        // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
-        return $sprunje->toResponse($response);
-    }
-
-    /**
      * Renders a page displaying a user's information, in read-only mode.
      *
      * Overrides the base `UserController:pageInfo` method, to display additional user fields.
@@ -281,12 +244,6 @@ class UserProfileController extends UserController
         $schema = new RequestSchema();
         $schema->setSchema($cutomsFields);
         $schema->initForm($userCutomsFields);
-
-        // We now need to mark all fields as disabled for this form
-        foreach ($schema->generateForm() as $fieldName => $fieldData)
-        {
-            $schema->setInputArgument($fieldName, 'disabled', 'disabled');
-        }
 
         // Determine buttons to display
         $editButtons = [

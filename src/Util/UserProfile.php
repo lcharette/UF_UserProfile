@@ -22,6 +22,8 @@ class UserProfile
 {
     protected $ci;
 
+    protected $schema = "userProfile";
+
     /**
      * __construct function.
      *
@@ -60,7 +62,7 @@ class UserProfile
         $locator = $this->ci->locator;
 
         // Get all the location where we can find config schemas
-        $paths = array_reverse($locator->findResources('schema://userProfile', true, false));
+        $paths = array_reverse($locator->findResources('schema://' . $this->schema, true, false));
 
         // For every location...
         foreach ($paths as $path) {

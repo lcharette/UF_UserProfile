@@ -4,7 +4,7 @@ namespace UserFrosting\Sprinkle\UserProfile\Model;
 use UserFrosting\Sprinkle\Account\Model\User;
 use UserFrosting\Sprinkle\UserProfile\Util\UserProfile;
 
-class UserProfileUser extends User {
+class CustomUserProfile extends User {
 
     /**
      * Get the owler associated with this user.

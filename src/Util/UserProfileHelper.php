@@ -45,7 +45,7 @@ class UserProfileHelper
      * @param mixed $user
      * @return void
      */
-    public function getProfile($user)
+    public function getProfile($user, $transform = false)
     {
         //N.B.: User cache not yet implemented in master/develop. See UF branch `feature-cache`
         //return $this->cache->rememberForever('profileFields', function() use ($user) {
@@ -58,8 +58,22 @@ class UserProfileHelper
             $userFields = $user->profileFields->pluck('value', 'slug');
 
             // Map the fields from the list to the values from the db
-            return $fields->mapWithKeys(function ($item, $key) use ($userFields) {
-                return [$key => $userFields->get($key, "")]; //!TODO : Fields default + select modifyer
+            return $fields->mapWithKeys(function ($item, $key) use ($userFields, $transform) {
+
+                // Get the default value
+                $default = ($item['form']['default']) ?: "";
+
+                // Get the field value.
+                $value = $userFields->get($key, $default);
+
+                // Add the pretty formated version
+                if ($transform && $item['form']['type'] == "select") {
+                    $value = ($item['form']['options'][$value]) ?: $value;
+                }
+
+                return [
+                    $key => $value
+                ];;
             });
 
         //});

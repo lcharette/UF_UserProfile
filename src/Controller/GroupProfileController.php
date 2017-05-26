@@ -321,7 +321,7 @@ class GroupProfileController extends GroupController
 
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
-        $customProfile = $this->profileHelper->getProfile($group);
+        $customProfile = $this->profileHelper->getProfile($group, true);
 
         $schema = new RequestSchema();
         $schema->setSchema($cutomsFields);

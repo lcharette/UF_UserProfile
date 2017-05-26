@@ -249,7 +249,7 @@ class UserProfileController extends UserController
 
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
-        $userCutomsFields = $this->profileHelper->getProfile($user);
+        $userCutomsFields = $this->profileHelper->getProfile($user, true);
 
         $schema = new RequestSchema();
         $schema->setSchema($cutomsFields);

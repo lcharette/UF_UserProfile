@@ -9,14 +9,15 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Util;
 
-use UserFrosting\Sprinkle\UserProfile\Util\UserProfile;
+use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
 
 /**
- * UserProfileHelper Class
+ * CustomProfileHelper Class
  *
  * Helper class to fetch and controls the custom profile fields
  */
-class GroupProfile extends UserProfile
+class GroupProfileHelper extends UserProfileHelper
 {
     protected $schema = "groupProfile";
+    protected $schemaCacheKey = "customProfileUserSchema";
 }

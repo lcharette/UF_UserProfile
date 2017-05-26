@@ -25,7 +25,6 @@ use UserFrosting\Sprinkle\Account\Util\Password;
 use UserFrosting\Sprinkle\Admin\Sprunje\ActivitySprunje;
 use UserFrosting\Sprinkle\Admin\Sprunje\RoleSprunje;
 use UserFrosting\Sprinkle\Admin\Sprunje\UserSprunje;
-use UserFrosting\Sprinkle\Admin\Controller\UserController;
 use UserFrosting\Sprinkle\Core\Facades\Debug;
 use UserFrosting\Sprinkle\Core\Mail\EmailRecipient;
 use UserFrosting\Sprinkle\Core\Mail\TwigMailMessage;
@@ -33,11 +32,26 @@ use UserFrosting\Support\Exception\BadRequestException;
 use UserFrosting\Support\Exception\ForbiddenException;
 use UserFrosting\Support\Exception\HttpException;
 
-use UserFrosting\Sprinkle\UserProfile\Util\UserProfile;
+use Interop\Container\ContainerInterface;
+use UserFrosting\Sprinkle\Admin\Controller\UserController;
+use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
 use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
 
 class UserProfileController extends UserController
 {
+    protected $profileHelper;
+
+    /**
+     * Constructor.
+     *
+     * @param ContainerInterface $ci The global container object, which holds all your services.
+     */
+    public function __construct(ContainerInterface $ci)
+    {
+        $this->profileHelper = new UserProfileHelper($ci);
+        return parent::__construct($ci);
+    }
+
     /**
      * Processes the request to create a new user (from the admin controls).
      *
@@ -69,8 +83,7 @@ class UserProfileController extends UserController
         $ms = $this->ci->alerts;
 
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
         $schema = new RequestSchema('schema://user/create.json');
@@ -139,7 +152,7 @@ class UserProfileController extends UserController
             $user->save();
 
             // We now have to update the custom profile fields
-            $user->setUserFields($data);
+            $this->profileHelper->setProfile($user, $data);
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created a new account for {$user->user_name}.", [
@@ -234,12 +247,9 @@ class UserProfileController extends UserController
             }
         }
 
-        // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
-
-        // Load the user fields values
-        $userCutomsFields = $user->getUserFields();
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $userCutomsFields = $this->profileHelper->getProfile($user);
 
         $schema = new RequestSchema();
         $schema->setSchema($cutomsFields);
@@ -368,12 +378,12 @@ class UserProfileController extends UserController
         $user = $classMapper->createInstance('user', $data);
 
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $userCutomsFields = $this->profileHelper->getProfile($user);
 
         $schema = new RequestSchema('schema://user/create.json');
         $schema->appendSchema($cutomsFields);
-        $schema->initForm($user->getUserFields());
+        $schema->initForm($userCutomsFields);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
@@ -460,12 +470,9 @@ class UserProfileController extends UserController
             $fields['disabled'][] = 'group';
         }
 
-        // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
-
-        // Load the user fields values
-        $userCutomsFields = $user->getUserFields();
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $userCutomsFields = $this->profileHelper->getProfile($user);
 
         $schema = new RequestSchema('schema://user/edit-info.json');
         $schema->appendSchema($cutomsFields);
@@ -519,9 +526,8 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
-        // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
         $schema = new RequestSchema('schema://user/edit-info.json');
@@ -603,7 +609,7 @@ class UserProfileController extends UserController
             $user->save();
 
             // We now have to update the custom profile fields
-            $user->setUserFields($data);
+            $this->profileHelper->setProfile($user, $data);
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated basic account info for user {$user->user_name}.", [
@@ -646,11 +652,8 @@ class UserProfileController extends UserController
         $validatorAccountSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
 
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
-
-        // Load the user fields values
-        $userCutomsFields = $currentUser->getUserFields();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $userCutomsFields = $this->profileHelper->getProfile($currentUser);
 
         $schema = new RequestSchema("schema://profile-settings.json");
         $schema->appendSchema($cutomsFields);
@@ -715,8 +718,7 @@ class UserProfileController extends UserController
         $params = $request->getParsedBody();
 
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
         $schema = new RequestSchema("schema://profile-settings.json");
@@ -753,7 +755,7 @@ class UserProfileController extends UserController
         $currentUser->save();
 
         // We now have to update the custom profile fields
-        $currentUser->setUserFields($data);
+        $this->profileHelper->setProfile($currentUser, $data);
 
         // Create activity record
         $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated their profile settings.", [

@@ -2,7 +2,7 @@
     "name": "lcharette/uf_userprofile",
     "type": "userfrosting-sprinkle",
     "description": "Custom Profile Fields for UserFrosting V4",
-    "keywords": ["userfrosting"],
+    "keywords": ["userfrosting", "Sprinkle", "Profile"],
     "homepage": "https://github.com/lcharette/UF_UserProfile",
     "license" : "MIT",
     "authors" : [

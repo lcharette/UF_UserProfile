@@ -26,8 +26,9 @@ use UserFrosting\Support\Exception\BadRequestException;
 use UserFrosting\Support\Exception\ForbiddenException;
 use UserFrosting\Support\Exception\HttpException;
 
+use Interop\Container\ContainerInterface;
 use UserFrosting\Sprinkle\Admin\Controller\GroupController;
-use UserFrosting\Sprinkle\UserProfile\Util\GroupProfile;
+use UserFrosting\Sprinkle\UserProfile\Util\GroupProfileHelper;
 use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
 
 /**
@@ -37,6 +38,19 @@ use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
  */
 class GroupProfileController extends GroupController
 {
+    protected $profileHelper;
+
+    /**
+     * Constructor.
+     *
+     * @param ContainerInterface $ci The global container object, which holds all your services.
+     */
+    public function __construct(ContainerInterface $ci)
+    {
+        $this->profileHelper = new GroupProfileHelper($ci);
+        return parent::__construct($ci);
+    }
+
     /**
      * Processes the request to create a new group.
      *
@@ -68,8 +82,7 @@ class GroupProfileController extends GroupController
         $ms = $this->ci->alerts;
 
         // Load more fields names
-        $GroupProfileHelper = new GroupProfile($this->ci);
-        $cutomsFields = $GroupProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
         $schema = new RequestSchema('schema://group/create.json');
@@ -119,7 +132,7 @@ class GroupProfileController extends GroupController
             $group->save();
 
             // We now have to update the custom profile fields
-            $group->setGroupFields($data);
+            $this->profileHelper->setProfile($group, $data);
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created group {$group->name}.", [
@@ -174,12 +187,12 @@ class GroupProfileController extends GroupController
         ];
 
         // Load more fields names
-        $GroupProfileHelper = new GroupProfile($this->ci);
-        $cutomsFields = $GroupProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($group);
 
         $schema = new RequestSchema('schema://group/create.json');
         $schema->appendSchema($cutomsFields);
-        $schema->initForm($group->getGroupFields());
+        $schema->initForm($customProfile);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
@@ -245,16 +258,13 @@ class GroupProfileController extends GroupController
             'disabled' => []
         ];
 
-        // Load more fields names
-        $GroupProfileHelper = new GroupProfile($this->ci);
-        $cutomsFields = $GroupProfileHelper->getFieldsSchema();
-
-        // Load the group fields values
-        $groupCutomsFields = $group->getGroupFields();
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($group);
 
         $schema = new RequestSchema('schema://group/edit-info.json');
         $schema->appendSchema($cutomsFields);
-        $schema->initForm($groupCutomsFields);
+        $schema->initForm($customProfile);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $translator);
@@ -309,16 +319,13 @@ class GroupProfileController extends GroupController
         // Determine fields that currentUser is authorized to view
         $fieldNames = ['name', 'slug', 'icon', 'description'];
 
-        // Load more fields names
-        $GroupProfileHelper = new GroupProfile($this->ci);
-        $cutomsFields = $GroupProfileHelper->getFieldsSchema();
-
-        // Load the group fields values
-        $groupCutomsFields = $group->getGroupFields();
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($group);
 
         $schema = new RequestSchema();
         $schema->setSchema($cutomsFields);
-        $schema->initForm($groupCutomsFields);
+        $schema->initForm($customProfile);
 
         // Generate form
         $fields = [
@@ -389,9 +396,8 @@ class GroupProfileController extends GroupController
         /** @var UserFrosting\Sprinkle\Core\MessageStream $ms */
         $ms = $this->ci->alerts;
 
-        // Load more fields names
-        $GroupProfileHelper = new GroupProfile($this->ci);
-        $cutomsFields = $GroupProfileHelper->getFieldsSchema();
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
         $schema = new RequestSchema('schema://group/edit-info.json');
@@ -468,7 +474,7 @@ class GroupProfileController extends GroupController
             $group->save();
 
             // We now have to update the custom profile fields
-            $group->setGroupFields($data);
+            $this->profileHelper->setProfile($group, $data);
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated details for group {$group->name}.", [

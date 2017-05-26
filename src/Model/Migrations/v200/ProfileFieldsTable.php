@@ -16,7 +16,7 @@ use Illuminate\Database\Schema\Builder;
  * Group profile fields table migration
  * @extends Migration
  */
-class GroupProfileFieldsTable extends Migration
+class ProfileFieldsTable extends Migration
 {
     /**
      * {@inheritDoc}
@@ -30,21 +30,11 @@ class GroupProfileFieldsTable extends Migration
      */
     public function up()
     {
-        if (!$this->schema->hasTable('groups_profile_fields')) {
-            $this->schema->create('groups_profile_fields', function (Blueprint $table) {
-                $table->increments('id');
-                $table->integer('group_id')->unsigned();
-                $table->string('slug', 255);
-                $table->string('value', 255)->nullable();
-                $table->timestamps();
-
-                $table->engine = 'InnoDB';
-                $table->collation = 'utf8_unicode_ci';
-                $table->charset = 'utf8';
-                $table->foreign('group_id')->references('id')->on('groups');
-                $table->index('id');
-            });
-        }
+        $this->schema->table('profile_fields', function (Blueprint $table) {
+            // Default is used for compatibility with old version (exisitng user entry)
+            $table->string('parent_type')->after('user_id')->default('UserFrosting\\\Sprinkle\\\UserProfile\\\Model\\\User');
+            $table->renameColumn('user_id', 'parent_id');
+        });
     }
 
     /**
@@ -52,6 +42,9 @@ class GroupProfileFieldsTable extends Migration
      */
     public function down()
     {
-        $this->schema->drop('groups_profile_fields');
+        $this->schema->table('profile_fields', function (Blueprint $table) {
+            $table->renameColumn('parent_id', 'user_id');
+            $table->dropColumn(['parent_type']);
+        });
     }
 }

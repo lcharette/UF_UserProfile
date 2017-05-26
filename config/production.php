@@ -1,11 +1,11 @@
 <?php
 
     /**
-     * Config values for User Profile Sprinkle
+     * Config values for Custom Profile Sprinkle
      *
      */
     return [
-        'profileFields' => [
-            'useCache' => true
+        'customProfile' => [
+            'cache' => true
         ]
     ];

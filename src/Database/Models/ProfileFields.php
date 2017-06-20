@@ -6,9 +6,10 @@
  * @copyright Copyright (c) 2016 Louis Charette
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
-namespace UserFrosting\Sprinkle\UserProfile\Model;
 
-use UserFrosting\Sprinkle\Core\Model\UFModel;
+namespace UserFrosting\Sprinkle\UserProfile\Database\Model;
+
+use UserFrosting\Sprinkle\Core\Models\UFModel;
 
 /**
  * ProfileFields Class

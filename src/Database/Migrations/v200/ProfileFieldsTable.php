@@ -6,9 +6,9 @@
  * @copyright Copyright (c) 2016 Louis Charette
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
-namespace UserFrosting\Sprinkle\UserProfile\Model\Migrations\v200;
+namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200;
 
-use UserFrosting\System\Bakery\Migrations\Migration;
+use UserFrosting\System\Bakery\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -22,7 +22,7 @@ class ProfileFieldsTable extends Migration
      * {@inheritDoc}
      */
     public $dependencies = [
-        '\UserFrosting\Sprinkle\Account\Model\Migrations\v400\GroupsTable'
+        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable'
     ];
 
     /**
@@ -32,7 +32,7 @@ class ProfileFieldsTable extends Migration
     {
         $this->schema->table('profile_fields', function (Blueprint $table) {
             // Default is used for compatibility with old version (exisitng user entry)
-            $table->string('parent_type')->after('user_id')->default('UserFrosting\\\Sprinkle\\\UserProfile\\\Model\\\User');
+            $table->string('parent_type')->after('user_id')->default('UserFrosting\\\Sprinkle\\\UserProfile\\\Models\\\User');
             $table->renameColumn('user_id', 'parent_id');
         });
     }

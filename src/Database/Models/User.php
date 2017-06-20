@@ -7,9 +7,9 @@
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
-namespace UserFrosting\Sprinkle\UserProfile\Model;
+namespace UserFrosting\Sprinkle\UserProfile\Database\Model;
 
-use UserFrosting\Sprinkle\Account\Model\User as CoreUser;
+use UserFrosting\Sprinkle\Account\Database\Models\User as CoreUser;
 use UserFrosting\Sprinkle\UserProfile\Util\CustomProfileHelper;
 
 /**
@@ -28,7 +28,7 @@ class User extends CoreUser {
      */
     public function profileFields()
     {
-        return $this->morphMany('\UserFrosting\Sprinkle\UserProfile\Model\ProfileFields', 'parent');
+        return $this->morphMany('\UserFrosting\Sprinkle\UserProfile\Database\Models\ProfileFields', 'parent');
     }
 
     /**

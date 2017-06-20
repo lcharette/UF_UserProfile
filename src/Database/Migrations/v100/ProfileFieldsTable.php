@@ -6,9 +6,9 @@
  * @copyright Copyright (c) 2016 Louis Charette
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
-namespace UserFrosting\Sprinkle\UserProfile\Model\Migrations\v100;
+namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100;
 
-use UserFrosting\System\Bakery\Migrations\Migration;
+use UserFrosting\System\Bakery\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -22,7 +22,7 @@ class ProfileFieldsTable extends Migration
      * {@inheritDoc}
      */
     public $dependencies = [
-        '\UserFrosting\Sprinkle\Account\Model\Migrations\v400\UsersTable'
+        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\UsersTable'
     ];
 
     /**

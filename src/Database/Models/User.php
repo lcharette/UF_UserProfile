@@ -7,7 +7,7 @@
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
-namespace UserFrosting\Sprinkle\UserProfile\Database\Model;
+namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
 use UserFrosting\Sprinkle\Account\Database\Models\User as CoreUser;
 use UserFrosting\Sprinkle\UserProfile\Util\CustomProfileHelper;

@@ -7,9 +7,9 @@
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
-namespace UserFrosting\Sprinkle\UserProfile\Database\Model;
+namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
-use UserFrosting\Sprinkle\Core\Models\UFModel;
+use UserFrosting\Sprinkle\Core\Database\Models\Model;
 
 /**
  * ProfileFields Class
@@ -20,7 +20,7 @@ use UserFrosting\Sprinkle\Core\Models\UFModel;
  * @package CustomProfile
  * @author Louis Charette
  */
-class ProfileFields extends UFModel {
+class ProfileFields extends Model {
 
     public $timestamps = true;
 

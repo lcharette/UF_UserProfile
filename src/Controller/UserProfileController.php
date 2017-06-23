@@ -16,7 +16,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\NotFoundException;
 use UserFrosting\Fortress\RequestDataTransformer;
-//use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
@@ -35,7 +34,9 @@ use UserFrosting\Support\Exception\HttpException;
 use Interop\Container\ContainerInterface;
 use UserFrosting\Sprinkle\Admin\Controller\UserController;
 use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
+
 use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
 
 class UserProfileController extends UserController
 {
@@ -86,7 +87,7 @@ class UserProfileController extends UserController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema('schema://user/create.json');
+        $schema = new RequestSchema('schema://requests/user/create.yaml');
         $schema->appendSchema($cutomsFields);
 
         // Whitelist and set parameter defaults
@@ -223,7 +224,7 @@ class UserProfileController extends UserController
         $config = $this->ci->config;
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         // Determine fields that currentUser is authorized to view
         $fieldNames = ['name', 'email', 'locale'];
@@ -353,7 +354,7 @@ class UserProfileController extends UserController
         ];
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         // Determine if currentUser has permission to modify the group.  If so, show the 'group' dropdown.
         // Otherwise, set to the currentUser's group and disable the dropdown.
@@ -381,14 +382,14 @@ class UserProfileController extends UserController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $userCutomsFields = $this->profileHelper->getProfile($user);
 
-        $schema = new RequestSchema('schema://user/create.json');
+        $schema = new RequestSchema('schema://requests/user/create.yaml');
         $schema->appendSchema($cutomsFields);
         $schema->initForm($userCutomsFields);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
 
-        return $this->ci->view->render($response, 'components/modals/user.html.twig', [
+        return $this->ci->view->render($response, 'modals/user.html.twig', [
             'user' => $user,
             'groups' => $groups,
             'locales' => $locales,
@@ -454,7 +455,7 @@ class UserProfileController extends UserController
         $config = $this->ci->config;
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         // Generate form
         $fields = [
@@ -474,14 +475,14 @@ class UserProfileController extends UserController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $userCutomsFields = $this->profileHelper->getProfile($user);
 
-        $schema = new RequestSchema('schema://user/edit-info.json');
+        $schema = new RequestSchema('schema://requests/user/edit-info.yaml');
         $schema->appendSchema($cutomsFields);
         $schema->initForm($userCutomsFields);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
 
-        return $this->ci->view->render($response, 'components/modals/user.html.twig', [
+        return $this->ci->view->render($response, 'modals/user.html.twig', [
             'user' => $user,
             'groups' => $groups,
             'locales' => $locales,
@@ -530,7 +531,7 @@ class UserProfileController extends UserController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema('schema://user/edit-info.json');
+        $schema = new RequestSchema('schema://requests/user/edit-info.yaml');
         $schema->appendSchema($cutomsFields);
 
         // Whitelist and set parameter defaults
@@ -648,14 +649,17 @@ class UserProfileController extends UserController
         }
 
         // Load validation rules
-        $schema = new RequestSchema("schema://account-settings.json");
+        $schema = new RequestSchema("schema://requests/account-settings.yaml");
         $validatorAccountSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
+
+        // Load profile-settings validation rules
+        $schema = new RequestSchema("schema://requests/profile-settings.yaml");
 
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $userCutomsFields = $this->profileHelper->getProfile($currentUser);
 
-        $schema = new RequestSchema("schema://profile-settings.json");
+        // Merge custom fields into profile-settings
         $schema->appendSchema($cutomsFields);
         $schema->initForm($userCutomsFields);
 
@@ -666,7 +670,7 @@ class UserProfileController extends UserController
         $config = $this->ci->config;
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         return $this->ci->view->render($response, 'pages/account-settings.html.twig', [
             "locales" => $locales,
@@ -721,7 +725,7 @@ class UserProfileController extends UserController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema("schema://profile-settings.json");
+        $schema = new RequestSchema("schema://requests/profile-settings.yaml");
         $schema->appendSchema($cutomsFields);
 
         // Whitelist and set parameter defaults
@@ -738,7 +742,7 @@ class UserProfileController extends UserController
         }
 
         // Check that locale is valid
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
         if (!array_key_exists($data['locale'], $locales)) {
             $ms->addMessageTranslated("danger", "LOCALE.INVALID", $data);
             $error = true;

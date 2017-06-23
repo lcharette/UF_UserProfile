@@ -13,6 +13,8 @@ use UserFrosting\Support\Exception\FileNotFoundException;
 use UserFrosting\Support\Exception\JsonException;
 use Interop\Container\ContainerInterface;
 use UserFrosting\Sprinkle\Core\Facades\Debug;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+
 
 /**
  * CustomProfileHelper Class
@@ -48,7 +50,7 @@ class UserProfileHelper
     public function getProfile($user, $transform = false)
     {
         //N.B.: User cache not yet implemented in master/develop. See UF branch `feature-cache`
-        //return $this->cache->rememberForever('profileFields', function() use ($user) {
+        //return $user->cache->rememberForever('profileFields', function() use ($user) {
 
             // Get the fields list
             $fields = $this->getFieldsSchema();
@@ -61,7 +63,7 @@ class UserProfileHelper
             return $fields->mapWithKeys(function ($item, $key) use ($userFields, $transform) {
 
                 // Get the default value
-                $default = ($item['form']['default']) ?: "";
+                $default = isset($item['form']['default']) ? $item['form']['default'] : "";
 
                 // Get the field value.
                 $value = $userFields->get($key, $default);
@@ -73,7 +75,7 @@ class UserProfileHelper
 
                 return [
                     $key => $value
-                ];;
+                ];
             });
 
         //});
@@ -126,7 +128,9 @@ class UserProfileHelper
         $cache = $this->ci->cache;
 
         if ($config['customProfile.cache']) {
-            return $cache->rememberForever($this->schemaCacheKey, $this->getSchemaContent($this->schema));
+            return $cache->rememberForever($this->schemaCacheKey, function () {
+                return $this->getSchemaContent($this->schema);
+            });
         } else {
             return $this->getSchemaContent($this->schema);
         }
@@ -145,6 +149,9 @@ class UserProfileHelper
         $schemas = array();
         $locator = $this->ci->locator;
 
+        // Define the YAML loader
+        $loader = new YamlFileLoader([]);
+
         // Get all the location where we can find config schemas
         $paths = array_reverse($locator->findResources('schema://' . $schemaLocation, true, false));
 
@@ -158,14 +165,11 @@ class UserProfileHelper
             foreach ($files_with_path as $file) {
 
                 // Load the file content
-                $schema = $this->loadSchema($file);
-
-                // Add to list
-                $schemas = array_merge($schemas, $schema);
+                $loader->addPath($file);
             }
         }
 
-        return $schemas;
+        return $loader->load();
     }
 
     /**

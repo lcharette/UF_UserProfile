@@ -85,7 +85,7 @@ class GroupProfileController extends GroupController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema('schema://group/create.json');
+        $schema = new RequestSchema('schema://requests/group/create.yaml');
         $schema->appendSchema($cutomsFields);
 
         // Whitelist and set parameter defaults
@@ -190,14 +190,14 @@ class GroupProfileController extends GroupController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group);
 
-        $schema = new RequestSchema('schema://group/create.json');
+        $schema = new RequestSchema('schema://requests/group/create.yaml');
         $schema->appendSchema($cutomsFields);
         $schema->initForm($customProfile);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
 
-        return $this->ci->view->render($response, 'components/modals/group.html.twig', [
+        return $this->ci->view->render($response, 'modals/group.html.twig', [
             'group' => $group,
             'form' => [
                 'action' => 'api/groups',
@@ -262,14 +262,14 @@ class GroupProfileController extends GroupController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group);
 
-        $schema = new RequestSchema('schema://group/edit-info.json');
+        $schema = new RequestSchema('schema://requests/group/edit-info.yaml');
         $schema->appendSchema($cutomsFields);
         $schema->initForm($customProfile);
 
         // Load validation rules
         $validator = new JqueryValidationAdapter($schema, $translator);
 
-        return $this->ci->view->render($response, 'components/modals/group.html.twig', [
+        return $this->ci->view->render($response, 'modals/group.html.twig', [
             'group' => $group,
             'form' => [
                 'action' => "api/groups/g/{$group->slug}",
@@ -400,7 +400,7 @@ class GroupProfileController extends GroupController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema('schema://group/edit-info.json');
+        $schema = new RequestSchema('schema://requests/group/edit-info.yaml');
         $schema->appendSchema($cutomsFields);
 
         // Whitelist and set parameter defaults

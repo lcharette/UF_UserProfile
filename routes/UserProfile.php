@@ -8,9 +8,9 @@
  */
 
 /**
- * Routes for administrative user management.  Overrides routes defined in routes://admin/users.php
+ * Routes for administrative user management.  Overrides routes defined in routes://users.php
  */
-$app->group('/admin/users', function () {
+$app->group('/users', function () {
     $this->get('/u/{user_name}', 'UserFrosting\Sprinkle\UserProfile\Controller\UserProfileController:pageInfo');
 })->add('authGuard');
 

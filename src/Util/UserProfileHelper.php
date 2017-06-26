@@ -171,26 +171,4 @@ class UserProfileHelper
 
         return $loader->load();
     }
-
-    /**
-     * loadSchema function.
-     * Load the specified file content and return it as an array
-     *
-     * @access public
-     * @param mixed $file   The full path of the schema we want
-     * @return array        The schema content
-     */
-    protected function loadSchema($file)
-    {
-        $doc = file_get_contents($file);
-        if ($doc === false)
-            throw new FileNotFoundException("The schema '$file' could not be found.");
-
-        $schema = json_decode($doc, true);
-        if ($schema === null) {
-            throw new JsonException("The schema '$file' does not contain a valid JSON document.  JSON error: " . json_last_error());
-        }
-
-        return $schema;
-    }
 }

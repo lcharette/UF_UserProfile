@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\NotFoundException;
 use UserFrosting\Fortress\RequestDataTransformer;
-//use UserFrosting\Fortress\RequestSchema;
+use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
@@ -27,9 +27,11 @@ use UserFrosting\Support\Exception\ForbiddenException;
 use UserFrosting\Support\Exception\HttpException;
 
 use Interop\Container\ContainerInterface;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
 use UserFrosting\Sprinkle\Admin\Controller\GroupController;
 use UserFrosting\Sprinkle\UserProfile\Util\GroupProfileHelper;
-use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
+use UserFrosting\Sprinkle\FormGenerator\Form;
 
 /**
  * Controller class for group-related requests, including listing groups, CRUD for groups, etc.
@@ -81,12 +83,20 @@ class GroupProfileController extends GroupController
         /** @var UserFrosting\Sprinkle\Core\MessageStream $ms */
         $ms = $this->ci->alerts;
 
+        //-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-        // Load the request schema
-        $schema = new RequestSchema('schema://requests/group/create.yaml');
-        $schema->appendSchema($cutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/group/create.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -186,16 +196,23 @@ class GroupProfileController extends GroupController
             'disabled' => []
         ];
 
+        //-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group);
 
-        $schema = new RequestSchema('schema://requests/group/create.yaml');
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($customProfile);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/group/create.yaml');
+		$loaderContent = $loader->load();
 
-        // Load validation rules
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         return $this->ci->view->render($response, 'modals/group.html.twig', [
             'group' => $group,
@@ -203,11 +220,11 @@ class GroupProfileController extends GroupController
                 'action' => 'api/groups',
                 'method' => 'POST',
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'submit_text' => $translator->translate("CREATE")
             ],
             'page' => [
-                'validators' => $validator->rules('json', false)
+                'validators' => $validator->rules('json', true)
             ]
         ]);
     }
@@ -258,16 +275,23 @@ class GroupProfileController extends GroupController
             'disabled' => []
         ];
 
+        //-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group);
 
-        $schema = new RequestSchema('schema://requests/group/edit-info.yaml');
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($customProfile);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/group/edit-info.yaml');
+		$loaderContent = $loader->load();
 
-        // Load validation rules
-        $validator = new JqueryValidationAdapter($schema, $translator);
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+        $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         return $this->ci->view->render($response, 'modals/group.html.twig', [
             'group' => $group,
@@ -275,11 +299,11 @@ class GroupProfileController extends GroupController
                 'action' => "api/groups/g/{$group->slug}",
                 'method' => 'PUT',
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'submit_text' => $translator->translate('UPDATE')
             ],
             'page' => [
-                'validators' => $validator->rules('json', false)
+                'validators' => $validator->rules('json', true)
             ]
         ]);
     }
@@ -319,13 +343,14 @@ class GroupProfileController extends GroupController
         // Determine fields that currentUser is authorized to view
         $fieldNames = ['name', 'slug', 'icon', 'description'];
 
+		//-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group, true);
 
-        $schema = new RequestSchema();
-        $schema->setSchema($cutomsFields);
-        $schema->initForm($customProfile);
+		$schema = new RequestSchemaRepository($cutomsFields);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         // Generate form
         $fields = [
@@ -362,7 +387,7 @@ class GroupProfileController extends GroupController
         return $this->ci->view->render($response, 'pages/group.html.twig', [
             'group' => $group,
             'fields' => $fields,
-            'customFields' => $schema->generateForm(),
+            'customFields' => $form->generate(),
             'tools' => $editButtons
         ]);
     }
@@ -396,12 +421,20 @@ class GroupProfileController extends GroupController
         /** @var UserFrosting\Sprinkle\Core\MessageStream $ms */
         $ms = $this->ci->alerts;
 
+		//-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-        // Load the request schema
-        $schema = new RequestSchema('schema://requests/group/edit-info.yaml');
-        $schema->appendSchema($cutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/group/edit-info.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);

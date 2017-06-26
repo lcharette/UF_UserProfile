@@ -6,7 +6,6 @@
  * @copyright Copyright (c) 2016 Louis Charette
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
-
 namespace UserFrosting\Sprinkle\UserProfile\Controller;
 
 use Carbon\Carbon;
@@ -16,14 +15,13 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\NotFoundException;
 use UserFrosting\Fortress\RequestDataTransformer;
+use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Account\Database\Models\User;
 use UserFrosting\Sprinkle\Account\Util\Password;
-use UserFrosting\Sprinkle\Admin\Sprunje\ActivitySprunje;
-use UserFrosting\Sprinkle\Admin\Sprunje\RoleSprunje;
-use UserFrosting\Sprinkle\Admin\Sprunje\UserSprunje;
+use UserFrosting\Sprinkle\Core\Controller\SimpleController;
 use UserFrosting\Sprinkle\Core\Facades\Debug;
 use UserFrosting\Sprinkle\Core\Mail\EmailRecipient;
 use UserFrosting\Sprinkle\Core\Mail\TwigMailMessage;
@@ -32,11 +30,11 @@ use UserFrosting\Support\Exception\ForbiddenException;
 use UserFrosting\Support\Exception\HttpException;
 
 use Interop\Container\ContainerInterface;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
 use UserFrosting\Sprinkle\Admin\Controller\UserController;
 use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
-
-use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
-use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\Sprinkle\FormGenerator\Form;
 
 class UserProfileController extends UserController
 {
@@ -83,12 +81,20 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
+		//-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-        // Load the request schema
-        $schema = new RequestSchema('schema://requests/user/create.yaml');
-        $schema->appendSchema($cutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/create.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -105,6 +111,8 @@ class UserProfileController extends UserController
 
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
+
+        Debug::debug(print_r($data, true));
 
         // Check if username or email already exists
         if ($classMapper->staticMethod('user', 'exists', $data['user_name'], 'user_name')) {
@@ -152,8 +160,10 @@ class UserProfileController extends UserController
             // Store new user to database
             $user->save();
 
+			//-->
             // We now have to update the custom profile fields
             $this->profileHelper->setProfile($user, $data);
+			//<--
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created a new account for {$user->user_name}.", [
@@ -248,13 +258,14 @@ class UserProfileController extends UserController
             }
         }
 
+		//-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
-        $userCutomsFields = $this->profileHelper->getProfile($user, true);
+        $customProfile = $this->profileHelper->getProfile($user, true);
 
-        $schema = new RequestSchema();
-        $schema->setSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
+		$schema = new RequestSchemaRepository($cutomsFields);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         // Determine buttons to display
         $editButtons = [
@@ -307,7 +318,7 @@ class UserProfileController extends UserController
             'locales' => $locales,
             'form' => [
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'edit_buttons' => $editButtons
             ]
         ]);
@@ -378,16 +389,23 @@ class UserProfileController extends UserController
 
         $user = $classMapper->createInstance('user', $data);
 
+		//-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
-        $userCutomsFields = $this->profileHelper->getProfile($user);
+        $customProfile = $this->profileHelper->getProfile($user);
 
-        $schema = new RequestSchema('schema://requests/user/create.yaml');
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/create.yaml');
+		$loaderContent = $loader->load();
 
-        // Load validation rules
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         return $this->ci->view->render($response, 'modals/user.html.twig', [
             'user' => $user,
@@ -397,11 +415,11 @@ class UserProfileController extends UserController
                 'action' => 'api/users',
                 'method' => 'POST',
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'submit_text' => $translator->translate("CREATE")
             ],
             'page' => [
-                'validators' => $validator->rules('json', false)
+                'validators' => $validator->rules('json', true)
             ]
         ]);
     }
@@ -471,16 +489,23 @@ class UserProfileController extends UserController
             $fields['disabled'][] = 'group';
         }
 
+		//-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
-        $userCutomsFields = $this->profileHelper->getProfile($user);
+        $customProfile = $this->profileHelper->getProfile($user);
 
-        $schema = new RequestSchema('schema://requests/user/edit-info.yaml');
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
+		$loaderContent = $loader->load();
 
-        // Load validation rules
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         return $this->ci->view->render($response, 'modals/user.html.twig', [
             'user' => $user,
@@ -490,11 +515,11 @@ class UserProfileController extends UserController
                 'action' => "api/users/u/{$user->user_name}",
                 'method' => 'PUT',
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'submit_text' => 'Update user'
             ],
             'page' => [
-                'validators' => $validator->rules('json', false)
+                'validators' => $validator->rules('json', true)
             ]
         ]);
     }
@@ -527,12 +552,20 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
+		//-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-        // Load the request schema
-        $schema = new RequestSchema('schema://requests/user/edit-info.yaml');
-        $schema->appendSchema($cutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -652,19 +685,22 @@ class UserProfileController extends UserController
         $schema = new RequestSchema("schema://requests/account-settings.yaml");
         $validatorAccountSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
 
-        // Load profile-settings validation rules
-        $schema = new RequestSchema("schema://requests/profile-settings.yaml");
+        //-->
+		$loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
+		$loaderContent = $loader->load();
 
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
-        $userCutomsFields = $this->profileHelper->getProfile($currentUser);
+        $customProfile = $this->profileHelper->getProfile($currentUser);
 
-        // Merge custom fields into profile-settings
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
 
-        // Load validator as usual
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validatorProfileSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         /** @var Config $config */
         $config = $this->ci->config;
@@ -674,7 +710,7 @@ class UserProfileController extends UserController
 
         return $this->ci->view->render($response, 'pages/account-settings.html.twig', [
             "locales" => $locales,
-            'customFields' => $schema->generateForm(),
+            'customFields' => $form->generate(),
             "page" => [
                 "validators" => [
                     "account_settings"    => $validatorAccountSettings->rules('json', false),
@@ -721,12 +757,20 @@ class UserProfileController extends UserController
         // POST parameters
         $params = $request->getParsedBody();
 
+		//-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema("schema://requests/profile-settings.yaml");
-        $schema->appendSchema($cutomsFields);
+		$loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);

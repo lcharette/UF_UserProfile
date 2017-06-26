@@ -6,7 +6,6 @@
  * @copyright Copyright (c) 2016 Louis Charette
  * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
-
 namespace UserFrosting\Sprinkle\UserProfile\Controller;
 
 use Carbon\Carbon;
@@ -16,16 +15,13 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\NotFoundException;
 use UserFrosting\Fortress\RequestDataTransformer;
-//use UserFrosting\Fortress\RequestSchema;
+use UserFrosting\Fortress\RequestSchema;
 use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
-use UserFrosting\Sprinkle\Account\Model\Group;
-use UserFrosting\Sprinkle\Account\Model\User;
+use UserFrosting\Sprinkle\Account\Database\Models\Group;
+use UserFrosting\Sprinkle\Account\Database\Models\User;
 use UserFrosting\Sprinkle\Account\Util\Password;
-use UserFrosting\Sprinkle\Admin\Sprunje\ActivitySprunje;
-use UserFrosting\Sprinkle\Admin\Sprunje\RoleSprunje;
-use UserFrosting\Sprinkle\Admin\Sprunje\UserSprunje;
-use UserFrosting\Sprinkle\Admin\Controller\UserController;
+use UserFrosting\Sprinkle\Core\Controller\SimpleController;
 use UserFrosting\Sprinkle\Core\Facades\Debug;
 use UserFrosting\Sprinkle\Core\Mail\EmailRecipient;
 use UserFrosting\Sprinkle\Core\Mail\TwigMailMessage;
@@ -33,11 +29,28 @@ use UserFrosting\Support\Exception\BadRequestException;
 use UserFrosting\Support\Exception\ForbiddenException;
 use UserFrosting\Support\Exception\HttpException;
 
-use UserFrosting\Sprinkle\UserProfile\Util\UserProfile;
-use UserFrosting\Sprinkle\FormGenerator\RequestSchema;
+use Interop\Container\ContainerInterface;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
+use UserFrosting\Sprinkle\Admin\Controller\UserController;
+use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
+use UserFrosting\Sprinkle\FormGenerator\Form;
 
 class UserProfileController extends UserController
 {
+    protected $profileHelper;
+
+    /**
+     * Constructor.
+     *
+     * @param ContainerInterface $ci The global container object, which holds all your services.
+     */
+    public function __construct(ContainerInterface $ci)
+    {
+        $this->profileHelper = new UserProfileHelper($ci);
+        return parent::__construct($ci);
+    }
+
     /**
      * Processes the request to create a new user (from the admin controls).
      *
@@ -57,7 +70,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled page
@@ -68,13 +81,20 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
+		//-->
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-        // Load the request schema
-        $schema = new RequestSchema('schema://user/create.json');
-        $schema->appendSchema($cutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/create.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -91,6 +111,8 @@ class UserProfileController extends UserController
 
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
+
+        Debug::debug(print_r($data, true));
 
         // Check if username or email already exists
         if ($classMapper->staticMethod('user', 'exists', $data['user_name'], 'user_name')) {
@@ -138,8 +160,10 @@ class UserProfileController extends UserController
             // Store new user to database
             $user->save();
 
+			//-->
             // We now have to update the custom profile fields
-            $user->setUserFields($data);
+            $this->profileHelper->setProfile($user, $data);
+			//<--
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created a new account for {$user->user_name}.", [
@@ -178,43 +202,6 @@ class UserProfileController extends UserController
     }
 
     /**
-     * Returns a list of Owlers
-     *
-     * Overrides the base `UserController:getList` method, to display additional user fields.
-     * Request type: GET
-     */
-    public function getList($request, $response, $args)
-    {
-        // GET parameters
-        $params = $request->getQueryParams();
-
-        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
-        $authorizer = $this->ci->authorizer;
-
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
-        $currentUser = $this->ci->currentUser;
-
-        // Access-controlled page
-        if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
-            throw new ForbiddenException();
-        }
-
-        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
-        $classMapper = $this->ci->classMapper;
-
-        $sprunje = $classMapper->createInstance('user_sprunje', $classMapper, $params);
-        /*
-            $sprunje = new UserSprunje($classMapper, $params);
-        $sprunje->extendQuery(function ($query) {
-            return $query->with('owler');
-        });*/
-
-        // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
-        // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
-        return $sprunje->toResponse($response);
-    }
-
-    /**
      * Renders a page displaying a user's information, in read-only mode.
      *
      * Overrides the base `UserController:pageInfo` method, to display additional user fields.
@@ -233,7 +220,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled page
@@ -247,7 +234,7 @@ class UserProfileController extends UserController
         $config = $this->ci->config;
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         // Determine fields that currentUser is authorized to view
         $fieldNames = ['name', 'email', 'locale'];
@@ -271,22 +258,14 @@ class UserProfileController extends UserController
             }
         }
 
-        // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+		//-->
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($user, true);
 
-        // Load the user fields values
-        $userCutomsFields = $user->getUserFields();
-
-        $schema = new RequestSchema();
-        $schema->setSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
-
-        // We now need to mark all fields as disabled for this form
-        foreach ($schema->generateForm() as $fieldName => $fieldData)
-        {
-            $schema->setInputArgument($fieldName, 'disabled', 'disabled');
-        }
+		$schema = new RequestSchemaRepository($cutomsFields);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         // Determine buttons to display
         $editButtons = [
@@ -339,7 +318,7 @@ class UserProfileController extends UserController
             'locales' => $locales,
             'form' => [
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'edit_buttons' => $editButtons
             ]
         ]);
@@ -362,7 +341,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         $translator = $this->ci->translator;
@@ -386,7 +365,7 @@ class UserProfileController extends UserController
         ];
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         // Determine if currentUser has permission to modify the group.  If so, show the 'group' dropdown.
         // Otherwise, set to the currentUser's group and disable the dropdown.
@@ -410,18 +389,25 @@ class UserProfileController extends UserController
 
         $user = $classMapper->createInstance('user', $data);
 
+		//-->
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($user);
 
-        $schema = new RequestSchema('schema://user/create.json');
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($user->getUserFields());
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/create.yaml');
+		$loaderContent = $loader->load();
 
-        // Load validation rules
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
-        return $this->ci->view->render($response, 'components/modals/user.html.twig', [
+        return $this->ci->view->render($response, 'modals/user.html.twig', [
             'user' => $user,
             'groups' => $groups,
             'locales' => $locales,
@@ -429,11 +415,11 @@ class UserProfileController extends UserController
                 'action' => 'api/users',
                 'method' => 'POST',
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'submit_text' => $translator->translate("CREATE")
             ],
             'page' => [
-                'validators' => $validator->rules('json', false)
+                'validators' => $validator->rules('json', true)
             ]
         ]);
     }
@@ -468,7 +454,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled resource - check that currentUser has permission to edit basic fields "name", "email", "locale" for this user
@@ -487,7 +473,7 @@ class UserProfileController extends UserController
         $config = $this->ci->config;
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         // Generate form
         $fields = [
@@ -503,21 +489,25 @@ class UserProfileController extends UserController
             $fields['disabled'][] = 'group';
         }
 
-        // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+		//-->
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($user);
 
-        // Load the user fields values
-        $userCutomsFields = $user->getUserFields();
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
+		$loaderContent = $loader->load();
 
-        $schema = new RequestSchema('schema://user/edit-info.json');
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
 
-        // Load validation rules
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
-        return $this->ci->view->render($response, 'components/modals/user.html.twig', [
+        return $this->ci->view->render($response, 'modals/user.html.twig', [
             'user' => $user,
             'groups' => $groups,
             'locales' => $locales,
@@ -525,11 +515,11 @@ class UserProfileController extends UserController
                 'action' => "api/users/u/{$user->user_name}",
                 'method' => 'PUT',
                 'fields' => $fields,
-                'customFields' => $schema->generateForm(),
+                'customFields' => $form->generate(),
                 'submit_text' => 'Update user'
             ],
             'page' => [
-                'validators' => $validator->rules('json', false)
+                'validators' => $validator->rules('json', true)
             ]
         ]);
     }
@@ -562,13 +552,20 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
-        // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+		//-->
+        // Load the custom fields
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-        // Load the request schema
-        $schema = new RequestSchema('schema://user/edit-info.json');
-        $schema->appendSchema($cutomsFields);
+		// Load the schema file content
+		$loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -598,7 +595,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled resource - check that currentUser has permission to edit submitted fields for this user
@@ -646,7 +643,7 @@ class UserProfileController extends UserController
             $user->save();
 
             // We now have to update the custom profile fields
-            $user->setUserFields($data);
+            $this->profileHelper->setProfile($user, $data);
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated basic account info for user {$user->user_name}.", [
@@ -676,7 +673,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled page
@@ -685,32 +682,35 @@ class UserProfileController extends UserController
         }
 
         // Load validation rules
-        $schema = new RequestSchema("schema://account-settings.json");
+        $schema = new RequestSchema("schema://requests/account-settings.yaml");
         $validatorAccountSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
 
+        //-->
+		$loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
+		$loaderContent = $loader->load();
+
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
+        $customProfile = $this->profileHelper->getProfile($currentUser);
 
-        // Load the user fields values
-        $userCutomsFields = $currentUser->getUserFields();
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
 
-        $schema = new RequestSchema("schema://profile-settings.json");
-        $schema->appendSchema($cutomsFields);
-        $schema->initForm($userCutomsFields);
-
-        // Load validator as usual
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
         $validatorProfileSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
+        $form = new Form($schema, $customProfile);
+        //<--
 
         /** @var Config $config */
         $config = $this->ci->config;
 
         // Get a list of all locales
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
 
         return $this->ci->view->render($response, 'pages/account-settings.html.twig', [
             "locales" => $locales,
-            'customFields' => $schema->generateForm(),
+            'customFields' => $form->generate(),
             "page" => [
                 "validators" => [
                     "account_settings"    => $validatorAccountSettings->rules('json', false),
@@ -738,7 +738,7 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
         $authorizer = $this->ci->authorizer;
 
-        /** @var UserFrosting\Sprinkle\Account\Model\User $currentUser */
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
         $currentUser = $this->ci->currentUser;
 
         // Access control for entire resource - check that the current user has permission to modify themselves
@@ -757,13 +757,20 @@ class UserProfileController extends UserController
         // POST parameters
         $params = $request->getParsedBody();
 
+		//-->
         // Load more fields names
-        $UserProfileHelper = new UserProfile($this->ci);
-        $cutomsFields = $UserProfileHelper->getFieldsSchema();
+        $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-        $schema = new RequestSchema("schema://profile-settings.json");
-        $schema->appendSchema($cutomsFields);
+		$loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
+		$loaderContent = $loader->load();
+
+		// Add the custom fields
+		$loaderContent = array_merge($loaderContent, $cutomsFields);
+
+		// Get the schema repo, validator and create the form
+		$schema = new RequestSchemaRepository($loaderContent);
+		//<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -779,7 +786,7 @@ class UserProfileController extends UserController
         }
 
         // Check that locale is valid
-        $locales = $config['site.locales.available'];
+        $locales = $config->getDefined('site.locales.available');
         if (!array_key_exists($data['locale'], $locales)) {
             $ms->addMessageTranslated("danger", "LOCALE.INVALID", $data);
             $error = true;
@@ -796,7 +803,7 @@ class UserProfileController extends UserController
         $currentUser->save();
 
         // We now have to update the custom profile fields
-        $currentUser->setUserFields($data);
+        $this->profileHelper->setProfile($currentUser, $data);
 
         // Create activity record
         $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated their profile settings.", [

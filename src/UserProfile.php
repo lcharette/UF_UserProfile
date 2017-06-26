@@ -8,8 +8,7 @@
  */
 namespace UserFrosting\Sprinkle\UserProfile;
 
-use UserFrosting\Sprinkle\UserProfile\ServicesProvider\ServicesProvider;
-use UserFrosting\Sprinkle\Core\Initialize\Sprinkle;
+use UserFrosting\System\Sprinkle\Sprinkle;
 
 /**
  * UserProfile class.
@@ -19,12 +18,5 @@ use UserFrosting\Sprinkle\Core\Initialize\Sprinkle;
  */
 class UserProfile extends Sprinkle
 {
-    /**
-     * Register services.
-     */
-    public function init()
-    {
-        $serviceProvider = new ServicesProvider();
-        $serviceProvider->register($this->ci);
-    }
+
 }

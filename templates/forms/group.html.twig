@@ -1,6 +1,6 @@
-{% extends "@admin/components/forms/user.html.twig" %}
+{% extends "@admin/forms/group.html.twig" %}
 
-{% block user_form %}
+{% block group_form %}
     {{ parent() }}
     <div class="col-sm-12">{% include 'FormGenerator/FormGenerator.html.twig' with {fields: form.customFields} %}</div>
 {% endblock %}

@@ -27,7 +27,8 @@ class ServicesProvider
          * Mappings added: OwlerUser
          */
         $container->extend('classMapper', function ($classMapper, $c) {
-            $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\UserProfile\Model\UserProfileUser');
+            $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\UserProfile\Database\Models\User');
+            $classMapper->setClassMapping('group', 'UserFrosting\Sprinkle\UserProfile\Database\Models\Group');
             return $classMapper;
         });
     }

@@ -75,14 +75,5 @@ For example, you can add the following to a `schema/userProfile/myFields.json` f
 }
 ```
 
-# Advance use - Defining a field controller
-TODO
-
-## Permission
-TODO
-
-## Transformation
-TODO
-
 # Licence
-By [Louis Charette](https://github.com/lcharette). Copyright (c) 2016, free to use in personal and commercial software as per the MIT license.
+By [Louis Charette](https://github.com/lcharette). Copyright (c) 2017, free to use in personal and commercial software as per the MIT license.

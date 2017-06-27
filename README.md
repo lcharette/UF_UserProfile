@@ -20,7 +20,7 @@ Edit UserFrosting `app/sprinkles.json` file and add the following to the `requir
 }
 ```
 
-Run `composer update` then `composer run-script bake` to install the sprinkle.
+Run `composer update` then `php bakery bake` to install the sprinkle.
 
 # Usage
 

@@ -112,8 +112,6 @@ class UserProfileController extends UserController
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
 
-        Debug::debug(print_r($data, true));
-
         // Check if username or email already exists
         if ($classMapper->staticMethod('user', 'exists', $data['user_name'], 'user_name')) {
             $ms->addMessageTranslated('danger', 'USERNAME.IN_USE', $data);

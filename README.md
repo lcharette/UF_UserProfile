@@ -15,7 +15,7 @@ Edit UserFrosting `app/sprinkles.json` file and add the following to the `requir
         "account",
         "admin",
         "FormGenerator",
-        "UserProfile",
+        "UserProfile"
     ]
 }
 ```

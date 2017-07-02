@@ -3,12 +3,12 @@
 > This version only works with UserFrosting 4.1.x !
 
 ## Install
-Edit UserFrosting `app/sprinkles.json` file and add the following to the `require` list : `"lcharette/uf_userprofile": "~2.0.0"`. Also add `FormGenerator` and `UserProfile` to the `base` list. For example:
+Edit UserFrosting `app/sprinkles.json` file and add the following to the `require` list : `"lcharette/uf_userprofile": "^2.0.0"`. Also add `FormGenerator` and `UserProfile` to the `base` list. For example:
 
 ```
 {
     "require": {
-        "lcharette/uf_userprofile": "~2.0.0"
+        "lcharette/uf_userprofile": "^2.0.0"
     },
     "base": [
         "core",

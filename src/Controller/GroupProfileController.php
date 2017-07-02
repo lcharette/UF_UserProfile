@@ -87,16 +87,16 @@ class GroupProfileController extends GroupController
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/group/create.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/group/create.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
-		//<--
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
+        //<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -201,15 +201,15 @@ class GroupProfileController extends GroupController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group);
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/group/create.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/group/create.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
         $form = new Form($schema, $customProfile);
         //<--
@@ -280,15 +280,15 @@ class GroupProfileController extends GroupController
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group);
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/group/edit-info.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/group/edit-info.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
         $form = new Form($schema, $customProfile);
         //<--
@@ -343,12 +343,12 @@ class GroupProfileController extends GroupController
         // Determine fields that currentUser is authorized to view
         $fieldNames = ['name', 'slug', 'icon', 'description'];
 
-		//-->
+        //-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($group, true);
 
-		$schema = new RequestSchemaRepository($cutomsFields);
+        $schema = new RequestSchemaRepository($cutomsFields);
         $form = new Form($schema, $customProfile);
         //<--
 
@@ -421,20 +421,20 @@ class GroupProfileController extends GroupController
         /** @var UserFrosting\Sprinkle\Core\MessageStream $ms */
         $ms = $this->ci->alerts;
 
-		//-->
+        //-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/group/edit-info.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/group/edit-info.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
-		//<--
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
+        //<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);

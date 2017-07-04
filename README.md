@@ -3,24 +3,24 @@
 > This version only works with UserFrosting 4.1.x !
 
 ## Install
-Edit UserFrosting `app/sprinkles.json` file and add the following to the `require` list : `"lcharette/uf_userprofile": "~2.0.0"`. Also add `FormGenerator` and `UserProfile` to the `base` list. For example:
+Edit UserFrosting `app/sprinkles.json` file and add the following to the `require` list : `"lcharette/uf_userprofile": "^2.0.0"`. Also add `FormGenerator` and `UserProfile` to the `base` list. For example:
 
 ```
 {
     "require": {
-        "lcharette/uf_userprofile": "~2.0.0"
+        "lcharette/uf_userprofile": "^2.0.0"
     },
     "base": [
         "core",
         "account",
         "admin",
         "FormGenerator",
-        "UserProfile",
+        "UserProfile"
     ]
 }
 ```
 
-Run `composer update` then `composer run-script bake` to install the sprinkle.
+Run `composer update` then `php bakery bake` to install the sprinkle.
 
 # Usage
 
@@ -75,14 +75,5 @@ For example, you can add the following to a `schema/userProfile/myFields.json` f
 }
 ```
 
-# Advance use - Defining a field controller
-TODO
-
-## Permission
-TODO
-
-## Transformation
-TODO
-
 # Licence
-By [Louis Charette](https://github.com/lcharette). Copyright (c) 2016, free to use in personal and commercial software as per the MIT license.
+By [Louis Charette](https://github.com/lcharette). Copyright (c) 2017, free to use in personal and commercial software as per the MIT license.

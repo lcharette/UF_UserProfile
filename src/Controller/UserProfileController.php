@@ -81,20 +81,20 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
-		//-->
+        //-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/user/create.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/user/create.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
-		//<--
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
+        //<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -111,8 +111,6 @@ class UserProfileController extends UserController
 
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
-
-        Debug::debug(print_r($data, true));
 
         // Check if username or email already exists
         if ($classMapper->staticMethod('user', 'exists', $data['user_name'], 'user_name')) {
@@ -160,10 +158,10 @@ class UserProfileController extends UserController
             // Store new user to database
             $user->save();
 
-			//-->
+            //-->
             // We now have to update the custom profile fields
             $this->profileHelper->setProfile($user, $data);
-			//<--
+            //<--
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created a new account for {$user->user_name}.", [
@@ -258,12 +256,12 @@ class UserProfileController extends UserController
             }
         }
 
-		//-->
+        //-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($user, true);
 
-		$schema = new RequestSchemaRepository($cutomsFields);
+        $schema = new RequestSchemaRepository($cutomsFields);
         $form = new Form($schema, $customProfile);
         //<--
 
@@ -389,20 +387,20 @@ class UserProfileController extends UserController
 
         $user = $classMapper->createInstance('user', $data);
 
-		//-->
+        //-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($user);
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/user/create.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/user/create.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
         $form = new Form($schema, $customProfile);
         //<--
@@ -489,20 +487,20 @@ class UserProfileController extends UserController
             $fields['disabled'][] = 'group';
         }
 
-		//-->
+        //-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($user);
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
         $form = new Form($schema, $customProfile);
         //<--
@@ -552,20 +550,20 @@ class UserProfileController extends UserController
         /** @var MessageStream $ms */
         $ms = $this->ci->alerts;
 
-		//-->
+        //-->
         // Load the custom fields
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
-		// Load the schema file content
-		$loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
-		$loaderContent = $loader->load();
+        // Load the schema file content
+        $loader = new YamlFileLoader('schema://requests/user/edit-info.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
-		//<--
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
+        //<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -686,18 +684,18 @@ class UserProfileController extends UserController
         $validatorAccountSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
 
         //-->
-		$loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
-		$loaderContent = $loader->load();
+        $loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
+        $loaderContent = $loader->load();
 
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
         $customProfile = $this->profileHelper->getProfile($currentUser);
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
         $validatorProfileSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
         $form = new Form($schema, $customProfile);
         //<--
@@ -757,20 +755,20 @@ class UserProfileController extends UserController
         // POST parameters
         $params = $request->getParsedBody();
 
-		//-->
+        //-->
         // Load more fields names
         $cutomsFields = $this->profileHelper->getFieldsSchema();
 
         // Load the request schema
-		$loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
-		$loaderContent = $loader->load();
+        $loader = new YamlFileLoader('schema://requests/profile-settings.yaml');
+        $loaderContent = $loader->load();
 
-		// Add the custom fields
-		$loaderContent = array_merge($loaderContent, $cutomsFields);
+        // Add the custom fields
+        $loaderContent = array_merge($loaderContent, $cutomsFields);
 
-		// Get the schema repo, validator and create the form
-		$schema = new RequestSchemaRepository($loaderContent);
-		//<--
+        // Get the schema repo, validator and create the form
+        $schema = new RequestSchemaRepository($loaderContent);
+        //<--
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);

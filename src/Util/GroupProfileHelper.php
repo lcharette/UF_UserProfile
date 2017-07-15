@@ -19,5 +19,5 @@ use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
 class GroupProfileHelper extends UserProfileHelper
 {
     protected $schema = "groupProfile";
-    protected $schemaCacheKey = "customProfileUserSchema";
+    protected $schemaCacheKey = "customProfileGroupSchema";
 }

@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.0.4
+- Fix db issue with group profile (Need to run new migration)
+
 ## 2.0.3
 - Updated Readme
 - Fix issue with cache

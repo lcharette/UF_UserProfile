@@ -215,7 +215,7 @@ class UserProfileController extends UserController
             return $response->withRedirect($usersPage, 404);
         }
 
-        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
+        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager $authorizer */
         $authorizer = $this->ci->authorizer;
 
         /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
@@ -228,33 +228,20 @@ class UserProfileController extends UserController
             throw new ForbiddenException();
         }
 
-        /** @var Config $config */
+        /** @var UserFrosting\Config\Config $config */
         $config = $this->ci->config;
 
         // Get a list of all locales
         $locales = $config->getDefined('site.locales.available');
 
         // Determine fields that currentUser is authorized to view
-        $fieldNames = ['name', 'email', 'locale'];
+        $fieldNames = ['user_name', 'name', 'email', 'locale', 'group', 'roles'];
 
         // Generate form
         $fields = [
             // Always hide these
-            'hidden' => ['user_name', 'group', 'theme'],
-            'disabled' => []
+            'hidden' => ['theme']
         ];
-
-        // Determine which fields should be hidden entirely
-        foreach ($fieldNames as $field) {
-            if ($authorizer->checkAccess($currentUser, 'view_user_field', [
-                'user' => $user,
-                'property' => $field
-            ])) {
-                $fields['disabled'][] = $field;
-            } else {
-                $fields['hidden'][] = $field;
-            }
-        }
 
         //-->
         // Load the custom fields
@@ -264,6 +251,16 @@ class UserProfileController extends UserController
         $schema = new RequestSchemaRepository($cutomsFields);
         $form = new Form($schema, $customProfile);
         //<--
+
+        // Determine which fields should be hidden
+        foreach ($fieldNames as $field) {
+            if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
+                'user' => $user,
+                'property' => $field
+            ])) {
+                $fields['hidden'][] = $field;
+            }
+        }
 
         // Determine buttons to display
         $editButtons = [
@@ -311,9 +308,31 @@ class UserProfileController extends UserController
             $editButtons['hidden'][] = 'delete';
         }
 
+        // Determine widgets to display
+        $widgets = [
+            'hidden' => []
+        ];
+
+        if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
+            'user' => $user,
+            'property' => 'permissions'
+        ])) {
+            $widgets['hidden'][] = 'permissions';
+        }
+
+        if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
+            'user' => $user,
+            'property' => 'activities'
+        ])) {
+            $widgets['hidden'][] = 'activities';
+        }
+
         return $this->ci->view->render($response, 'pages/user.html.twig', [
             'user' => $user,
             'locales' => $locales,
+            'fields' => $fields,
+            'tools' => $editButtons,
+            'widgets' => $widgets,
             'form' => [
                 'fields' => $fields,
                 'customFields' => $form->generate(),

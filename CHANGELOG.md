@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.0.5
+- Update controller from core one
+
 ## 2.0.4
 - Fix db issue with group profile (Need to run new migration)
 

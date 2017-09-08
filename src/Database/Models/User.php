@@ -11,6 +11,7 @@ namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
 use UserFrosting\Sprinkle\Account\Database\Models\User as CoreUser;
 use UserFrosting\Sprinkle\UserProfile\Util\CustomProfileHelper;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelpers;
 
 /**
  * User Class
@@ -21,7 +22,9 @@ use UserFrosting\Sprinkle\UserProfile\Util\CustomProfileHelper;
  * @package CustomProfile
  * @author Louis Charette
  */
-class User extends CoreUser {
+class User extends CoreUser
+{
+    use ProfileFieldsHelpers;
 
     /**
      * Eloquent relation to the profile table.

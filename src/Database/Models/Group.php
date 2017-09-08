@@ -11,6 +11,7 @@ namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
 use UserFrosting\Sprinkle\Account\Database\Models\Group as CoreGroup;
 use UserFrosting\Sprinkle\UserProfile\Util\CustomProfileHelper;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelpers;
 
 /**
  * Group Class
@@ -21,7 +22,9 @@ use UserFrosting\Sprinkle\UserProfile\Util\CustomProfileHelper;
  * @package CustomProfile
  * @author Louis Charette
  */
-class Group extends CoreGroup {
+class Group extends CoreGroup
+{
+    use ProfileFieldsHelpers;
 
     /**
      * Eloquent relation to the profile table.

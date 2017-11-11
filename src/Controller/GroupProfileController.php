@@ -153,7 +153,7 @@ class GroupProfileController extends GroupController
             $ms->addMessageTranslated('success', 'GROUP.CREATION_SUCCESSFUL', $data);
         });
 
-        return $response->withStatus(200);
+        return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
 
     /**
@@ -520,6 +520,6 @@ class GroupProfileController extends GroupController
             'name' => $group->name
         ]);
 
-        return $response->withStatus(200);
+        return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
 }

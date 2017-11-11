@@ -196,7 +196,7 @@ class UserProfileController extends UserController
             $ms->addMessageTranslated('success', 'USER.CREATED', $data);
         });
 
-        return $response->withStatus(200);
+        return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
 
     /**
@@ -672,7 +672,7 @@ class UserProfileController extends UserController
         $ms->addMessageTranslated('success', 'DETAILS_UPDATED', [
             'user_name' => $user->user_name
         ]);
-        return $response->withStatus(200);
+        return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
 
 
@@ -828,6 +828,6 @@ class UserProfileController extends UserController
         ]);
 
         $ms->addMessageTranslated("success", "PROFILE.UPDATED");
-        return $response->withStatus(200);
+        return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
 }

@@ -39,7 +39,7 @@ class ProfileFieldsTable extends Migration
     public function down()
     {
         $this->schema->table('profile_fields', function (Blueprint $table) {
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('parent_id')->references('id')->on('users');
         });
     }
 }

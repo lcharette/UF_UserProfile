@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.0.7
+- Fix migrations.
+
 ## 2.0.6
 - New `forProfileFieldsValue` scope (Usage :: `$groups = Group::forProfileFieldsValue($slug, $value);`) and `getProfileFieldsForSlug` custom mutator (Usage :: `$fieldValue = Group::getProfileFieldsForSlug($slug);`) both User and Group custom Models.
 

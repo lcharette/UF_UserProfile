@@ -22,7 +22,8 @@ class ProfileFieldsTable extends Migration
      * {@inheritDoc}
      */
     public $dependencies = [
-        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable'
+        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable',
+        '\UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100\ProfileFieldsTable'
     ];
 
     /**

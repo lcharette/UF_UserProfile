@@ -10,7 +10,7 @@ namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v201;
 
 use UserFrosting\System\Bakery\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\ProfileFields;
 
 /**
  * Group profile fields table migration
@@ -40,6 +40,9 @@ class ProfileFieldsTable extends Migration
      */
     public function down()
     {
+        // Delete all group related entries
+        ProfileFields::where('parent_type', 'UserFrosting\Sprinkle\UserProfile\Database\Models\Group')->delete();
+
         $this->schema->table('profile_fields', function (Blueprint $table) {
             $table->foreign('parent_id')->references('id')->on('users');
         });

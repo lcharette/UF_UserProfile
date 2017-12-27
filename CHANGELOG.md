@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.0.9
+- Fix rollback migrations.
+
 ## 2.0.8
 - Fix migrations dependencies for future UF Version.
 

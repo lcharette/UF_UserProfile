@@ -147,6 +147,8 @@ class UserProfileHelper
     protected function getSchemaContent($schemaLocation)
     {
         $schemas = array();
+
+        /** @var \RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator $locator */
         $locator = $this->ci->locator;
 
         // Define the YAML loader

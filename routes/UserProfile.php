@@ -1,14 +1,15 @@
 <?php
-/**
+
+/*
  * UF Custom User Profile Field Sprinkle
  *
- * @link      https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2016 Louis Charette
- * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2017 Louis Charette
+ * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 /**
- * Routes for administrative user management.  Overrides routes defined in routes://users.php
+ * Routes for administrative user management.  Overrides routes defined in routes://users.php.
  */
 $app->group('/users', function () {
     $this->get('/u/{user_name}', 'UserFrosting\Sprinkle\UserProfile\Controller\UserProfileController:pageInfo');

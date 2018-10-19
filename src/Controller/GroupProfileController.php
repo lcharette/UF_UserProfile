@@ -1,37 +1,30 @@
 <?php
-/**
- * UserFrosting (http://www.userfrosting.com)
+
+/*
+ * UF Custom User Profile Field Sprinkle
  *
- * @link      https://github.com/userfrosting/UserFrosting
- * @copyright Copyright (c) 2013-2016 Alexander Weissman
- * @license   https://github.com/userfrosting/UserFrosting/blob/master/licenses/UserFrosting.md (MIT License)
+ * @link https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2017 Louis Charette
+ * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
+
 namespace UserFrosting\Sprinkle\UserProfile\Controller;
 
-use Carbon\Carbon;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Psr\Http\Message\ResponseInterface as Response;
+use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\NotFoundException;
-use UserFrosting\Fortress\RequestDataTransformer;
-use UserFrosting\Fortress\RequestSchema;
-use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
+use UserFrosting\Fortress\RequestDataTransformer;
+use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
+use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Account\Database\Models\User;
-use UserFrosting\Sprinkle\Core\Controller\SimpleController;
-use UserFrosting\Sprinkle\Core\Facades\Debug;
-use UserFrosting\Support\Exception\BadRequestException;
-use UserFrosting\Support\Exception\ForbiddenException;
-use UserFrosting\Support\Exception\HttpException;
-
-use Interop\Container\ContainerInterface;
-use UserFrosting\Support\Repository\Loader\YamlFileLoader;
-use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
 use UserFrosting\Sprinkle\Admin\Controller\GroupController;
-use UserFrosting\Sprinkle\UserProfile\Util\GroupProfileHelper;
 use UserFrosting\Sprinkle\FormGenerator\Form;
+use UserFrosting\Sprinkle\UserProfile\Util\GroupProfileHelper;
+use UserFrosting\Support\Exception\ForbiddenException;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
 
 /**
  * Controller class for group-related requests, including listing groups, CRUD for groups, etc.
@@ -50,6 +43,7 @@ class GroupProfileController extends GroupController
     public function __construct(ContainerInterface $ci)
     {
         $this->profileHelper = new GroupProfileHelper($ci);
+
         return parent::__construct($ci);
     }
 
@@ -62,6 +56,7 @@ class GroupProfileController extends GroupController
      * 3. The submitted data is valid.
      * This route requires authentication (and should generally be limited to admins or the root user).
      * Request type: POST
+     *
      * @see getModalCreateGroup
      */
     public function create($request, $response, $args)
@@ -134,7 +129,7 @@ class GroupProfileController extends GroupController
 
         // All checks passed!  log events/activities and create group
         // Begin transaction - DB will be rolled back if an exception occurs
-        Capsule::transaction( function() use ($classMapper, $data, $ms, $config, $currentUser) {
+        Capsule::transaction(function () use ($classMapper, $data, $ms, $config, $currentUser) {
             // Create the group
             $group = $classMapper->createInstance('group', $data);
 
@@ -146,8 +141,8 @@ class GroupProfileController extends GroupController
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created group {$group->name}.", [
-                'type' => 'group_create',
-                'user_id' => $currentUser->id
+                'type'    => 'group_create',
+                'user_id' => $currentUser->id,
             ]);
 
             $ms->addMessageTranslated('success', 'GROUP.CREATION_SUCCESSFUL', $data);
@@ -192,8 +187,8 @@ class GroupProfileController extends GroupController
 
         $fieldNames = ['name', 'slug', 'icon', 'description'];
         $fields = [
-            'hidden' => [],
-            'disabled' => []
+            'hidden'   => [],
+            'disabled' => [],
         ];
 
         //-->
@@ -216,16 +211,16 @@ class GroupProfileController extends GroupController
 
         return $this->ci->view->render($response, 'modals/group.html.twig', [
             'group' => $group,
-            'form' => [
-                'action' => 'api/groups',
-                'method' => 'POST',
-                'fields' => $fields,
+            'form'  => [
+                'action'       => 'api/groups',
+                'method'       => 'POST',
+                'fields'       => $fields,
                 'customFields' => $form->generate(),
-                'submit_text' => $translator->translate("CREATE")
+                'submit_text'  => $translator->translate('CREATE'),
             ],
             'page' => [
-                'validators' => $validator->rules('json', true)
-            ]
+                'validators' => $validator->rules('json', true),
+            ],
         ]);
     }
 
@@ -264,15 +259,15 @@ class GroupProfileController extends GroupController
         $fieldNames = ['name', 'slug', 'icon', 'description'];
         if (!$authorizer->checkAccess($currentUser, 'update_group_field', [
             'group' => $group,
-            'fields' => $fieldNames
+            'fields' => $fieldNames,
         ])) {
             throw new ForbiddenException();
         }
 
         // Generate form
         $fields = [
-            'hidden' => [],
-            'disabled' => []
+            'hidden'   => [],
+            'disabled' => [],
         ];
 
         //-->
@@ -295,16 +290,16 @@ class GroupProfileController extends GroupController
 
         return $this->ci->view->render($response, 'modals/group.html.twig', [
             'group' => $group,
-            'form' => [
-                'action' => "api/groups/g/{$group->slug}",
-                'method' => 'PUT',
-                'fields' => $fields,
+            'form'  => [
+                'action'       => "api/groups/g/{$group->slug}",
+                'method'       => 'PUT',
+                'fields'       => $fields,
                 'customFields' => $form->generate(),
-                'submit_text' => $translator->translate('UPDATE')
+                'submit_text'  => $translator->translate('UPDATE'),
             ],
             'page' => [
-                'validators' => $validator->rules('json', true)
-            ]
+                'validators' => $validator->rules('json', true),
+            ],
         ]);
     }
 
@@ -324,6 +319,7 @@ class GroupProfileController extends GroupController
         // If the group no longer exists, forward to main group listing page
         if (!$group) {
             $redirectPage = $this->ci->router->pathFor('uri_groups');
+
             return $response->withRedirect($redirectPage, 404);
         }
 
@@ -335,7 +331,7 @@ class GroupProfileController extends GroupController
 
         // Access-controlled page
         if (!$authorizer->checkAccess($currentUser, 'uri_group', [
-                'group' => $group
+                'group' => $group,
             ])) {
             throw new ForbiddenException();
         }
@@ -354,13 +350,13 @@ class GroupProfileController extends GroupController
 
         // Generate form
         $fields = [
-            'hidden' => []
+            'hidden' => [],
         ];
 
         foreach ($fieldNames as $field) {
             if (!$authorizer->checkAccess($currentUser, 'view_group_field', [
                 'group' => $group,
-                'property' => $field
+                'property' => $field,
             ])) {
                 $fields['hidden'][] = $field;
             }
@@ -368,27 +364,27 @@ class GroupProfileController extends GroupController
 
         // Determine buttons to display
         $editButtons = [
-            'hidden' => []
+            'hidden' => [],
         ];
 
         if (!$authorizer->checkAccess($currentUser, 'update_group_field', [
             'group' => $group,
-            'fields' => ['name', 'slug', 'icon', 'description']
+            'fields' => ['name', 'slug', 'icon', 'description'],
         ])) {
             $editButtons['hidden'][] = 'edit';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'delete_group', [
-            'group' => $group
+            'group' => $group,
         ])) {
             $editButtons['hidden'][] = 'delete';
         }
 
         return $this->ci->view->render($response, 'pages/group.html.twig', [
-            'group' => $group,
-            'fields' => $fields,
+            'group'        => $group,
+            'fields'       => $fields,
             'customFields' => $form->generate(),
-            'tools' => $editButtons
+            'tools'        => $editButtons,
         ]);
     }
 
@@ -401,6 +397,7 @@ class GroupProfileController extends GroupController
      * 3. The submitted data is valid.
      * This route requires authentication (and should generally be limited to admins or the root user).
      * Request type: PUT
+     *
      * @see getModalGroupEdit
      */
     public function updateInfo($request, $response, $args)
@@ -464,7 +461,7 @@ class GroupProfileController extends GroupController
         // Access-controlled resource - check that currentUser has permission to edit submitted fields for this group
         if (!$authorizer->checkAccess($currentUser, 'update_group_field', [
             'group' => $group,
-            'fields' => array_values(array_unique($fieldNames))
+            'fields' => array_values(array_unique($fieldNames)),
         ])) {
             throw new ForbiddenException();
         }
@@ -496,7 +493,7 @@ class GroupProfileController extends GroupController
         }
 
         // Begin transaction - DB will be rolled back if an exception occurs
-        Capsule::transaction( function() use ($data, $group, $currentUser) {
+        Capsule::transaction(function () use ($data, $group, $currentUser) {
             // Update the group and generate success messages
             foreach ($data as $name => $value) {
                 if (isset($group->$name) && $value != $group->$name) {
@@ -511,13 +508,13 @@ class GroupProfileController extends GroupController
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated details for group {$group->name}.", [
-                'type' => 'group_update_info',
-                'user_id' => $currentUser->id
+                'type'    => 'group_update_info',
+                'user_id' => $currentUser->id,
             ]);
         });
 
         $ms->addMessageTranslated('success', 'GROUP.UPDATE', [
-            'name' => $group->name
+            'name' => $group->name,
         ]);
 
         return $response->withJson([], 200, JSON_PRETTY_PRINT);

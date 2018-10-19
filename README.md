@@ -1,5 +1,7 @@
 # Custom User Profile Field Sprinkle for [UserFrosting 4](https://www.userfrosting.com)
 
+[![StyleCI](https://github.styleci.io/repos/83981830/shield?branch=master)](https://github.styleci.io/repos/83981830) [![UserFrosting Version](https://img.shields.io/badge/UserFrosting->=%204.1-brightgreen.svg)](https://github.com/userfrosting/UserFrosting) [![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-brightgreen.svg)](https://ko-fi.com/A7052ICP)
+
 This Sprinkle makes it easy to add any custom fields to the user or group model. Simply create a new schema in you own sprinkle and you're done. Your new profile fields will be automcatically integrated in the default UserFrosting interface.
 
 > This version only works with UserFrosting 4.1.x !
@@ -7,8 +9,6 @@ This Sprinkle makes it easy to add any custom fields to the user or group model.
 # Help and Contributing
 
 If you need help using this sprinkle or found any bug, feels free to open an issue or submit a pull request. You can also find me on the [UserFrosting Chat](https://chat.userfrosting.com/) most of the time for direct support. 
-
-<a href='https://ko-fi.com/A7052ICP' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 # Installation
 

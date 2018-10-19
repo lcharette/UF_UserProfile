@@ -1,10 +1,11 @@
 <?php
-/**
- * UserFrosting (http://www.userfrosting.com)
+
+/*
+ * UF Custom User Profile Field Sprinkle
  *
- * @link      https://github.com/userfrosting/UserFrosting
- * @copyright Copyright (c) 2013-2016 Alexander Weissman
- * @license   https://github.com/userfrosting/UserFrosting/blob/master/licenses/UserFrosting.md (MIT License)
+ * @link https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2017 Louis Charette
+ * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 /**

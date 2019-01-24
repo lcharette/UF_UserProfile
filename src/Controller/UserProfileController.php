@@ -1,40 +1,34 @@
 <?php
-/**
+
+/*
  * UF Custom User Profile Field Sprinkle
  *
- * @link      https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2016 Louis Charette
- * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2017 Louis Charette
+ * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
+
 namespace UserFrosting\Sprinkle\UserProfile\Controller;
 
-use Carbon\Carbon;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Psr\Http\Message\ResponseInterface as Response;
+use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\NotFoundException;
+use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Fortress\RequestDataTransformer;
 use UserFrosting\Fortress\RequestSchema;
+use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
 use UserFrosting\Fortress\ServerSideValidator;
-use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Account\Database\Models\User;
 use UserFrosting\Sprinkle\Account\Util\Password;
-use UserFrosting\Sprinkle\Core\Controller\SimpleController;
-use UserFrosting\Sprinkle\Core\Facades\Debug;
+use UserFrosting\Sprinkle\Admin\Controller\UserController;
 use UserFrosting\Sprinkle\Core\Mail\EmailRecipient;
 use UserFrosting\Sprinkle\Core\Mail\TwigMailMessage;
-use UserFrosting\Support\Exception\BadRequestException;
-use UserFrosting\Support\Exception\ForbiddenException;
-use UserFrosting\Support\Exception\HttpException;
-
-use Interop\Container\ContainerInterface;
-use UserFrosting\Support\Repository\Loader\YamlFileLoader;
-use UserFrosting\Fortress\RequestSchema\RequestSchemaRepository;
-use UserFrosting\Sprinkle\Admin\Controller\UserController;
-use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
 use UserFrosting\Sprinkle\FormGenerator\Form;
+use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
+use UserFrosting\Support\Exception\ForbiddenException;
+use UserFrosting\Support\Repository\Loader\YamlFileLoader;
 
 class UserProfileController extends UserController
 {
@@ -48,6 +42,7 @@ class UserProfileController extends UserController
     public function __construct(ContainerInterface $ci)
     {
         $this->profileHelper = new UserProfileHelper($ci);
+
         return parent::__construct($ci);
     }
 
@@ -60,6 +55,7 @@ class UserProfileController extends UserController
      * 3. The submitted data is valid.
      * This route requires authentication.
      * Request type: POST
+     *
      * @see formUserCreate
      */
     public function create($request, $response, $args)
@@ -133,7 +129,7 @@ class UserProfileController extends UserController
         // If currentUser does not have permission to set the group, but they try to set it to something other than their own group,
         // throw an exception.
         if (!$authorizer->checkAccess($currentUser, 'create_user_field', [
-            'fields' => ['group']
+            'fields' => ['group'],
         ])) {
             if (isset($data['group_id']) && $data['group_id'] != $currentUser->group_id) {
                 throw new ForbiddenException();
@@ -151,7 +147,7 @@ class UserProfileController extends UserController
 
         // All checks passed!  log events/activities, create user, and send verification email (if required)
         // Begin transaction - DB will be rolled back if an exception occurs
-        Capsule::transaction( function() use ($classMapper, $data, $ms, $config, $currentUser) {
+        Capsule::transaction(function () use ($classMapper, $data, $ms, $config, $currentUser) {
             // Create the user
             $user = $classMapper->createInstance('user', $data);
 
@@ -165,8 +161,8 @@ class UserProfileController extends UserController
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} created a new account for {$user->user_name}.", [
-                'type' => 'account_create',
-                'user_id' => $currentUser->id
+                'type'    => 'account_create',
+                'user_id' => $currentUser->id,
             ]);
 
             // Load default roles
@@ -186,9 +182,9 @@ class UserProfileController extends UserController
             $message->from($config['address_book.admin'])
                     ->addEmailRecipient(new EmailRecipient($user->email, $user->full_name))
                     ->addParams([
-                        'user' => $user,
-                        'create_password_expiration' => $config['password_reset.timeouts.create'] / 3600 . ' hours',
-                        'token' => $passwordRequest->getToken()
+                        'user'                       => $user,
+                        'create_password_expiration' => $config['password_reset.timeouts.create'] / 3600 .' hours',
+                        'token'                      => $passwordRequest->getToken(),
                     ]);
 
             $this->ci->mailer->send($message);
@@ -212,6 +208,7 @@ class UserProfileController extends UserController
         // If the user no longer exists, forward to main user listing page
         if (!$user) {
             $usersPage = $this->ci->router->pathFor('uri_users');
+
             return $response->withRedirect($usersPage, 404);
         }
 
@@ -223,7 +220,7 @@ class UserProfileController extends UserController
 
         // Access-controlled page
         if (!$authorizer->checkAccess($currentUser, 'uri_user', [
-                'user' => $user
+                'user' => $user,
             ])) {
             throw new ForbiddenException();
         }
@@ -240,7 +237,7 @@ class UserProfileController extends UserController
         // Generate form
         $fields = [
             // Always hide these
-            'hidden' => ['theme']
+            'hidden' => ['theme'],
         ];
 
         //-->
@@ -256,7 +253,7 @@ class UserProfileController extends UserController
         foreach ($fieldNames as $field) {
             if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
                 'user' => $user,
-                'property' => $field
+                'property' => $field,
             ])) {
                 $fields['hidden'][] = $field;
             }
@@ -264,80 +261,80 @@ class UserProfileController extends UserController
 
         // Determine buttons to display
         $editButtons = [
-            'hidden' => []
+            'hidden' => [],
         ];
 
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => ['name', 'email', 'locale']
+            'fields' => ['name', 'email', 'locale'],
         ])) {
             $editButtons['hidden'][] = 'edit';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => ['flag_enabled']
+            'fields' => ['flag_enabled'],
         ])) {
             $editButtons['hidden'][] = 'enable';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => ['flag_verified']
+            'fields' => ['flag_verified'],
         ])) {
             $editButtons['hidden'][] = 'activate';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => ['password']
+            'fields' => ['password'],
         ])) {
             $editButtons['hidden'][] = 'password';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => ['roles']
+            'fields' => ['roles'],
         ])) {
             $editButtons['hidden'][] = 'roles';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'delete_user', [
-            'user' => $user
+            'user' => $user,
         ])) {
             $editButtons['hidden'][] = 'delete';
         }
 
         // Determine widgets to display
         $widgets = [
-            'hidden' => []
+            'hidden' => [],
         ];
 
         if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
             'user' => $user,
-            'property' => 'permissions'
+            'property' => 'permissions',
         ])) {
             $widgets['hidden'][] = 'permissions';
         }
 
         if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
             'user' => $user,
-            'property' => 'activities'
+            'property' => 'activities',
         ])) {
             $widgets['hidden'][] = 'activities';
         }
 
         return $this->ci->view->render($response, 'pages/user.html.twig', [
-            'user' => $user,
+            'user'    => $user,
             'locales' => $locales,
-            'fields' => $fields,
-            'tools' => $editButtons,
+            'fields'  => $fields,
+            'tools'   => $editButtons,
             'widgets' => $widgets,
-            'form' => [
-                'fields' => $fields,
+            'form'    => [
+                'fields'       => $fields,
                 'customFields' => $form->generate(),
-                'edit_buttons' => $editButtons
-            ]
+                'edit_buttons' => $editButtons,
+            ],
         ]);
     }
 
@@ -377,8 +374,8 @@ class UserProfileController extends UserController
         // Determine form fields to hide/disable
         // TODO: come back to this when we finish implementing theming
         $fields = [
-            'hidden' => ['theme'],
-            'disabled' => []
+            'hidden'   => ['theme'],
+            'disabled' => [],
         ];
 
         // Get a list of all locales
@@ -387,7 +384,7 @@ class UserProfileController extends UserController
         // Determine if currentUser has permission to modify the group.  If so, show the 'group' dropdown.
         // Otherwise, set to the currentUser's group and disable the dropdown.
         if ($authorizer->checkAccess($currentUser, 'create_user_field', [
-            'fields' => ['group']
+            'fields' => ['group'],
         ])) {
             // Get a list of all groups
             $groups = $classMapper->staticMethod('group', 'all');
@@ -401,7 +398,7 @@ class UserProfileController extends UserController
         $data = [
             'group_id' => $currentUser->group_id,
             'locale'   => $config['site.registration.user_defaults.locale'],
-            'theme'    => ''
+            'theme'    => '',
         ];
 
         $user = $classMapper->createInstance('user', $data);
@@ -425,19 +422,19 @@ class UserProfileController extends UserController
         //<--
 
         return $this->ci->view->render($response, 'modals/user.html.twig', [
-            'user' => $user,
-            'groups' => $groups,
+            'user'    => $user,
+            'groups'  => $groups,
             'locales' => $locales,
-            'form' => [
-                'action' => 'api/users',
-                'method' => 'POST',
-                'fields' => $fields,
+            'form'    => [
+                'action'       => 'api/users',
+                'method'       => 'POST',
+                'fields'       => $fields,
                 'customFields' => $form->generate(),
-                'submit_text' => $translator->translate("CREATE")
+                'submit_text'  => $translator->translate('CREATE'),
             ],
             'page' => [
-                'validators' => $validator->rules('json', true)
-            ]
+                'validators' => $validator->rules('json', true),
+            ],
         ]);
     }
 
@@ -478,7 +475,7 @@ class UserProfileController extends UserController
         $fieldNames = ['name', 'email', 'locale'];
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => $fieldNames
+            'fields' => $fieldNames,
         ])) {
             throw new ForbiddenException();
         }
@@ -494,14 +491,14 @@ class UserProfileController extends UserController
 
         // Generate form
         $fields = [
-            'hidden' => ['theme'],
-            'disabled' => ['user_name']
+            'hidden'   => ['theme'],
+            'disabled' => ['user_name'],
         ];
 
         // Disable group field if currentUser doesn't have permission to modify group
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => ['group']
+            'fields' => ['group'],
         ])) {
             $fields['disabled'][] = 'group';
         }
@@ -525,24 +522,24 @@ class UserProfileController extends UserController
         //<--
 
         return $this->ci->view->render($response, 'modals/user.html.twig', [
-            'user' => $user,
-            'groups' => $groups,
+            'user'    => $user,
+            'groups'  => $groups,
             'locales' => $locales,
-            'form' => [
-                'action' => "api/users/u/{$user->user_name}",
-                'method' => 'PUT',
-                'fields' => $fields,
+            'form'    => [
+                'action'       => "api/users/u/{$user->user_name}",
+                'method'       => 'PUT',
+                'fields'       => $fields,
                 'customFields' => $form->generate(),
-                'submit_text' => 'Update user'
+                'submit_text'  => 'Update user',
             ],
             'page' => [
-                'validators' => $validator->rules('json', true)
-            ]
+                'validators' => $validator->rules('json', true),
+            ],
         ]);
     }
 
     /**
-     * Processes the request to update an existing user's basic details (first_name, last_name, email, locale, group_id)
+     * Processes the request to update an existing user's basic details (first_name, last_name, email, locale, group_id).
      *
      * Processes the request from the user update form, checking that:
      * 1. The target user's new email address, if specified, is not already in use;
@@ -618,7 +615,7 @@ class UserProfileController extends UserController
         // Access-controlled resource - check that currentUser has permission to edit submitted fields for this user
         if (!$authorizer->checkAccess($currentUser, 'update_user_field', [
             'user' => $user,
-            'fields' => array_values(array_unique($fieldNames))
+            'fields' => array_values(array_unique($fieldNames)),
         ])) {
             throw new ForbiddenException();
         }
@@ -649,7 +646,7 @@ class UserProfileController extends UserController
         }
 
         // Begin transaction - DB will be rolled back if an exception occurs
-        Capsule::transaction( function() use ($data, $user, $currentUser) {
+        Capsule::transaction(function () use ($data, $user, $currentUser) {
             // Update the user and generate success messages
             foreach ($data as $name => $value) {
                 if (isset($user->$name) && $value != $user->$name) {
@@ -664,18 +661,17 @@ class UserProfileController extends UserController
 
             // Create activity record
             $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated basic account info for user {$user->user_name}.", [
-                'type' => 'account_update_info',
-                'user_id' => $currentUser->id
+                'type'    => 'account_update_info',
+                'user_id' => $currentUser->id,
             ]);
         });
 
         $ms->addMessageTranslated('success', 'DETAILS_UPDATED', [
-            'user_name' => $user->user_name
+            'user_name' => $user->user_name,
         ]);
+
         return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
-
-
 
     /**
      * Account settings page.
@@ -699,7 +695,7 @@ class UserProfileController extends UserController
         }
 
         // Load validation rules
-        $schema = new RequestSchema("schema://requests/account-settings.yaml");
+        $schema = new RequestSchema('schema://requests/account-settings.yaml');
         $validatorAccountSettings = new JqueryValidationAdapter($schema, $this->ci->translator);
 
         //-->
@@ -726,15 +722,15 @@ class UserProfileController extends UserController
         $locales = $config->getDefined('site.locales.available');
 
         return $this->ci->view->render($response, 'pages/account-settings.html.twig', [
-            "locales" => $locales,
+            'locales'      => $locales,
             'customFields' => $form->generate(),
-            "page" => [
-                "validators" => [
-                    "account_settings"    => $validatorAccountSettings->rules('json', false),
-                    "profile_settings"    => $validatorProfileSettings->rules('json', false)
+            'page'         => [
+                'validators' => [
+                    'account_settings'    => $validatorAccountSettings->rules('json', false),
+                    'profile_settings'    => $validatorProfileSettings->rules('json', false),
                 ],
-                "visibility" => ($authorizer->checkAccess($currentUser, "update_account_settings") ? "" : "disabled")
-            ]
+                'visibility' => ($authorizer->checkAccess($currentUser, 'update_account_settings') ? '' : 'disabled'),
+            ],
         ]);
     }
 
@@ -761,7 +757,8 @@ class UserProfileController extends UserController
         // Access control for entire resource - check that the current user has permission to modify themselves
         // See recipe "per-field access control" for dynamic fine-grained control over which properties a user can modify.
         if (!$authorizer->checkAccess($currentUser, 'update_account_settings')) {
-            $ms->addMessageTranslated("danger", "ACCOUNT.ACCESS_DENIED");
+            $ms->addMessageTranslated('danger', 'ACCOUNT.ACCESS_DENIED');
+
             return $response->withStatus(403);
         }
 
@@ -805,7 +802,7 @@ class UserProfileController extends UserController
         // Check that locale is valid
         $locales = $config->getDefined('site.locales.available');
         if (!array_key_exists($data['locale'], $locales)) {
-            $ms->addMessageTranslated("danger", "LOCALE.INVALID", $data);
+            $ms->addMessageTranslated('danger', 'LOCALE.INVALID', $data);
             $error = true;
         }
 
@@ -824,10 +821,11 @@ class UserProfileController extends UserController
 
         // Create activity record
         $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated their profile settings.", [
-            'type' => 'update_profile_settings'
+            'type' => 'update_profile_settings',
         ]);
 
-        $ms->addMessageTranslated("success", "PROFILE.UPDATED");
+        $ms->addMessageTranslated('success', 'PROFILE.UPDATED');
+
         return $response->withJson([], 200, JSON_PRETTY_PRINT);
     }
 }

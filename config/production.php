@@ -1,11 +1,15 @@
 <?php
 
-    /**
-     * Config values for Custom Profile Sprinkle
-     *
-     */
+/*
+ * UF Custom User Profile Field Sprinkle
+ *
+ * @link https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2017 Louis Charette
+ * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ */
+
     return [
         'customProfile' => [
-            'cache' => true
-        ]
+            'cache' => true,
+        ],
     ];

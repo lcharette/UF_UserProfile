@@ -1,32 +1,34 @@
 <?php
-/**
+
+/*
  * UF Custom User Profile Field Sprinkle
  *
- * @link      https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2016 Louis Charette
- * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2017 Louis Charette
+ * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
+
 namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100;
 
-use UserFrosting\System\Bakery\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
+use UserFrosting\System\Bakery\Migration;
 
 /**
- * Profile fields table migration
+ * Profile fields table migration.
+ *
  * @extends Migration
  */
 class ProfileFieldsTable extends Migration
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public $dependencies = [
-        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\UsersTable'
+        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\UsersTable',
     ];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function up()
     {
@@ -48,7 +50,7 @@ class ProfileFieldsTable extends Migration
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function down()
     {

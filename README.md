@@ -1,6 +1,10 @@
 # Custom User Profile Field Sprinkle for [UserFrosting 4](https://www.userfrosting.com)
 
-[![UserFrosting Version](https://img.shields.io/badge/UserFrosting->=%204.2-brightgreen.svg)](https://github.com/userfrosting/UserFrosting) [![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-brightgreen.svg)](https://ko-fi.com/A7052ICP)
+[![Latest Version](https://img.shields.io/github/release/lcharette/UF_UserProfile.svg)](https://github.com/lcharette/UF_UserProfile/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![UserFrosting Version](https://img.shields.io/badge/UserFrosting->=%204.1-brightgreen.svg)](https://github.com/userfrosting/UserFrosting)
+[![StyleCI](https://github.styleci.io/repos/83981830/shield?branch=master&style=flat)](https://github.styleci.io/repos/83981830)
+[![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-blue.svg)](https://ko-fi.com/A7052ICP)
 
 This Sprinkle makes it easy to add any custom fields to the user or group model. Simply create a new schema in you own sprinkle and you're done. Your new profile fields will be automatically integrated in the default UserFrosting interface.
 

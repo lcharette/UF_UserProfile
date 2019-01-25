@@ -1,14 +1,16 @@
 # Custom User Profile Field Sprinkle for [UserFrosting 4](https://www.userfrosting.com)
 
-[![StyleCI](https://github.styleci.io/repos/83981830/shield?branch=master)](https://github.styleci.io/repos/83981830) [![UserFrosting Version](https://img.shields.io/badge/UserFrosting->=%204.1-brightgreen.svg)](https://github.com/userfrosting/UserFrosting) [![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-brightgreen.svg)](https://ko-fi.com/A7052ICP)
+[![Latest Version](https://img.shields.io/github/release/lcharette/UF_UserProfile.svg)](https://github.com/lcharette/UF_UserProfile/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![UserFrosting Version](https://img.shields.io/badge/UserFrosting->=%204.1-brightgreen.svg)](https://github.com/userfrosting/UserFrosting)
+[![StyleCI](https://github.styleci.io/repos/83981830/shield?branch=master&style=flat)](https://github.styleci.io/repos/83981830)
+[![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-blue.svg)](https://ko-fi.com/A7052ICP)
 
-This Sprinkle makes it easy to add any custom fields to the user or group model. Simply create a new schema in you own sprinkle and you're done. Your new profile fields will be automcatically integrated in the default UserFrosting interface.
-
-> This version only works with UserFrosting 4.1.x !
+This Sprinkle makes it easy to add any custom fields to the user or group model. Simply create a new schema in you own sprinkle and you're done. Your new profile fields will be automatically integrated in the default UserFrosting interface.
 
 # Help and Contributing
 
-If you need help using this sprinkle or found any bug, feels free to open an issue or submit a pull request. You can also find me on the [UserFrosting Chat](https://chat.userfrosting.com/) most of the time for direct support. 
+If you need help using this sprinkle or found any bug, feels free to open an issue or submit a pull request. You can also find me on the [UserFrosting Chat](https://chat.userfrosting.com/) most of the time for direct support.
 
 # Installation
 
@@ -84,7 +86,7 @@ For example, you can add the following to a `schema/userProfile/myFields.json` f
 }
 ```
 
-Note that the schema must be saved inside the `schema/userProfile/` directory of your sprinkle to be picked up automatically by the system. You might also want to run `php bakery clear-cache` command from the UserFrosting root since thoses fields are stored in cache for better performances. 
+Note that the schema must be saved inside the `schema/userProfile/` directory of your sprinkle to be picked up automatically by the system. You might also want to run `php bakery clear-cache` command from the UserFrosting root since those fields are stored in cache for better performances.
 
 You can also specify **groups** custom fields by saving any schema in the the `schema/groupProfile/` directory of your sprinkle.
 
@@ -93,5 +95,5 @@ You can also specify **groups** custom fields by saving any schema in the the `s
 ![Screenshot 1](/screenshots/UF_UserProfile1.png?raw=true)
 ![Screenshot 1](/screenshots/UF_UserProfile2.png?raw=true)
 
-# Licence
+# License
 By [Louis Charette](https://github.com/lcharette). Copyright (c) 2017, free to use in personal and commercial software as per the MIT license.

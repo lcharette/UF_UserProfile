@@ -219,7 +219,7 @@ class GroupProfileController extends GroupController
                 'submit_text'  => $translator->translate('CREATE'),
             ],
             'page' => [
-                'validators' => $validator->rules('json', true),
+                'validators' => $validator->rules('json', false),
             ],
         ]);
     }
@@ -298,7 +298,7 @@ class GroupProfileController extends GroupController
                 'submit_text'  => $translator->translate('UPDATE'),
             ],
             'page' => [
-                'validators' => $validator->rules('json', true),
+                'validators' => $validator->rules('json', false),
             ],
         ]);
     }

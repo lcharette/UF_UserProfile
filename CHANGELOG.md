@@ -1,5 +1,8 @@
 # Change Log
 
+## [2.1.1]
+- Fix modals on admin panel ([#5]; Thanks @Jamezsss)
+
 ## [2.1.0]
 - Add support for FormGenerator v3.0.0
 
@@ -38,6 +41,7 @@
 ## 0.0.1
 - Initial beta release
 
+[2.1.1]: https://github.com/lcharette/UF_UserProfile/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/lcharette/UF_UserProfile/compare/2.0.9...2.1.0
 [2.0.9]: https://github.com/lcharette/UF_UserProfile/compare/2.0.8...2.0.9
 [2.0.8]: https://github.com/lcharette/UF_UserProfile/compare/2.0.7...2.0.8
@@ -49,3 +53,4 @@
 [2.0.2]: https://github.com/lcharette/UF_UserProfile/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/lcharette/UF_UserProfile/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/lcharette/UF_UserProfile/compare/0.0.1...2.0.0
+[#5]: https://github.com/lcharette/UF_UserProfile/pull/5

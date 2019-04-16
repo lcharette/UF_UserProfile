@@ -433,7 +433,7 @@ class UserProfileController extends UserController
                 'submit_text'  => $translator->translate('CREATE'),
             ],
             'page' => [
-                'validators' => $validator->rules('json', true),
+                'validators' => $validator->rules('json', false),
             ],
         ]);
     }
@@ -533,7 +533,7 @@ class UserProfileController extends UserController
                 'submit_text'  => 'Update user',
             ],
             'page' => [
-                'validators' => $validator->rules('json', true),
+                'validators' => $validator->rules('json', false),
             ],
         ]);
     }

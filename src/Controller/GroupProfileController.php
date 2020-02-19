@@ -331,8 +331,8 @@ class GroupProfileController extends GroupController
 
         // Access-controlled page
         if (!$authorizer->checkAccess($currentUser, 'uri_group', [
-                'group' => $group,
-            ])) {
+            'group' => $group,
+        ])) {
             throw new ForbiddenException();
         }
 

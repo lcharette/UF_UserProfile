@@ -71,8 +71,8 @@ class UserProfileHelper
             }
 
             return [
-                    $key => $value,
-                ];
+                $key => $value,
+            ];
         });
 
         //});

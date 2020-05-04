@@ -3,9 +3,9 @@
 /*
  * UF Custom User Profile Field Sprinkle
  *
- * @link https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2017 Louis Charette
- * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2020 Louis Charette
+ * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\UserProfile\Controller;
@@ -183,7 +183,7 @@ class UserProfileController extends UserController
                     ->addEmailRecipient(new EmailRecipient($user->email, $user->full_name))
                     ->addParams([
                         'user'                       => $user,
-                        'create_password_expiration' => $config['password_reset.timeouts.create'] / 3600 .' hours',
+                        'create_password_expiration' => $config['password_reset.timeouts.create'] / 3600 . ' hours',
                         'token'                      => $passwordRequest->getToken(),
                     ]);
 

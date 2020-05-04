@@ -3,9 +3,9 @@
 /*
  * UF Custom User Profile Field Sprinkle
  *
- * @link https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2017 Louis Charette
- * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2020 Louis Charette
+ * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\UserProfile\Util;
@@ -29,8 +29,6 @@ class UserProfileHelper
      * __construct function.
      *
      * @param ContainerInterface $ci
-     *
-     * @return void
      */
     public function __construct(ContainerInterface $ci)
     {
@@ -41,8 +39,6 @@ class UserProfileHelper
      * Return the value for the specified user profile.
      *
      * @param mixed $user
-     *
-     * @return void
      */
     public function getProfile($user, $transform = false)
     {
@@ -82,8 +78,6 @@ class UserProfileHelper
      * Set one or more user profile fields from an array.
      *
      * @param mixed $data
-     *
-     * @return void
      */
     public function setProfile($user, $data)
     {
@@ -113,8 +107,6 @@ class UserProfileHelper
     /**
      * Return the json schema for the GROUP custom profile fields.
      * Use the cache if the config is on or return directly otherwise.
-     *
-     * @return void
      */
     public function getFieldsSchema()
     {
@@ -135,8 +127,6 @@ class UserProfileHelper
      * Loop trhought all the available json schema inside a type of schemas.
      *
      * @param string $schema
-     *
-     * @return void
      */
     protected function getSchemaContent($schemaLocation)
     {
@@ -147,13 +137,13 @@ class UserProfileHelper
         $loader = new YamlFileLoader([]);
 
         // Get all the location where we can find config schemas
-        $paths = array_reverse($locator->findResources('schema://'.$schemaLocation, true, false));
+        $paths = array_reverse($locator->findResources('schema://' . $schemaLocation, true, false));
 
         // For every location...
         foreach ($paths as $path) {
 
             // Get a list of all the schemas file
-            $files_with_path = glob($path.'/*.json');
+            $files_with_path = glob($path . '/*.json');
 
             // Load every found files
             foreach ($files_with_path as $file) {

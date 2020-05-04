@@ -3,9 +3,9 @@
 /*
  * UF Custom User Profile Field Sprinkle
  *
- * @link https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2017 Louis Charette
- * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2020 Louis Charette
+ * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
@@ -38,8 +38,6 @@ class User extends CoreUser
      * Delete the profileFields values when deleting the main model.
      *
      * @param bool $hardDelete (default: false)
-     *
-     * @return void
      */
     public function delete($hardDelete = false)
     {

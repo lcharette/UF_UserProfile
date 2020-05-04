@@ -1,3 +1,5 @@
 .DS_Store
+.phpunit.result.cache
+.vscode
 .php_cs.cache
 _meta

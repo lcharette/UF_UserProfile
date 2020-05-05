@@ -10,7 +10,8 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Util;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
+use UserFrosting\Sprinkle\Account\Database\Models\Interfaces\UserInterface;
 use UserFrosting\Support\Repository\Loader\YamlFileLoader;
 
 /**
@@ -20,13 +21,17 @@ use UserFrosting\Support\Repository\Loader\YamlFileLoader;
  */
 class UserProfileHelper
 {
+    /** @var ContainerInterface */
     protected $ci;
 
+    /** @var string The schemas to load */
     protected $schema = 'userProfile';
+
+    /** @var string The key used to cache the schema */
     protected $schemaCacheKey = 'customProfileUserSchema';
 
     /**
-     * __construct function.
+     * Constructor
      *
      * @param ContainerInterface $ci
      */
@@ -38,7 +43,8 @@ class UserProfileHelper
     /**
      * Return the value for the specified user profile.
      *
-     * @param mixed $user
+     * @param UserInterface $user
+     * @param bool $transform
      */
     public function getProfile($user, $transform = false)
     {
@@ -126,11 +132,10 @@ class UserProfileHelper
      * Load the specified schemas
      * Loop trhought all the available json schema inside a type of schemas.
      *
-     * @param string $schema
+     * @param string $schemaLocation
      */
-    protected function getSchemaContent($schemaLocation)
+    protected function getSchemaContent(string $schemaLocation)
     {
-        $schemas = [];
         $locator = $this->ci->locator;
 
         // Define the YAML loader

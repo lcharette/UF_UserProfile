@@ -1,0 +1,30 @@
+{
+    "occupation" : {
+        "validators" : {
+            "length" : {
+                "label" : "OCCUPATION",
+                "min" : 1,
+                "max" : 255,
+                "message" : "VALIDATE.LENGTH_RANGE"
+            }
+        },
+        "form": {
+            "type": "textarea",
+            "label": "OCCUPATION",
+            "icon": "fa-briefcase"
+        }
+    },
+    "gender" : {
+        "validators" : {},
+        "form": {
+            "type": "select",
+            "label": "GENDER",
+            "icon": "fa-transgender",
+            "options" : {
+                "1" : "GENDER.MALE",
+                "2" : "GENDER.FEMALE",
+                "3" : "GENDER.NEUTRAL"
+            }
+        }
+    }
+}

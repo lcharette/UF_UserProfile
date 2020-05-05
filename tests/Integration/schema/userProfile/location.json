@@ -1,0 +1,17 @@
+{
+    "location" : {
+        "validators" : {
+            "length" : {
+                "label" : "LOCATION",
+                "min" : 1,
+                "max" : 255,
+                "message" : "VALIDATE.LENGTH_RANGE"
+            }
+        },
+        "form": {
+            "type": "text",
+            "label": "LOCATION",
+            "icon": "fa-globe"
+        }
+    }
+}

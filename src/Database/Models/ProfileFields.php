@@ -10,6 +10,7 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use UserFrosting\Sprinkle\Core\Database\Models\Model;
 
 /**
@@ -17,9 +18,8 @@ use UserFrosting\Sprinkle\Core\Database\Models\Model;
  *
  * Provide the polymorphic table used to store group and user custom fields values
  *
- * @extend CoreGroup
- *
- * @author Louis Charette
+ * @property string $slug
+ * @property string $value
  */
 class ProfileFields extends Model
 {
@@ -31,7 +31,7 @@ class ProfileFields extends Model
     protected $table = 'profile_fields';
 
     /**
-     * @var array List of fillables columns
+     * @var string[] List of fillables columns
      */
     protected $fillable = [
         'slug',
@@ -40,6 +40,8 @@ class ProfileFields extends Model
 
     /**
      * Get all of the owning models.
+     *
+     * @return MorphTo
      */
     public function parent()
     {

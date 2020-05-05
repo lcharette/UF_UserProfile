@@ -13,11 +13,7 @@ namespace UserFrosting\Sprinkle\UserProfile;
 use UserFrosting\System\Sprinkle\Sprinkle;
 
 /**
- * UserProfile class.
- *
  * Bootstrapper class for the 'UserProfile' sprinkle.
- *
- * @extends Sprinkle
  */
 class UserProfile extends Sprinkle
 {

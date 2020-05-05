@@ -11,16 +11,13 @@
 namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
 use UserFrosting\Sprinkle\Account\Database\Models\Group as CoreGroup;
+use UserFrosting\Sprinkle\Core\Database\Relations\MorphManySyncable;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelpers;
 
 /**
  * Group Class.
  *
  * Extend the core Group Model to add the custom group profile fields
- *
- * @extend CoreGroup
- *
- * @author Louis Charette
  */
 class Group extends CoreGroup
 {
@@ -28,6 +25,8 @@ class Group extends CoreGroup
 
     /**
      * Eloquent relation to the profile table.
+     *
+     * @return MorphManySyncable
      */
     public function profileFields()
     {
@@ -36,6 +35,7 @@ class Group extends CoreGroup
 
     /**
      * Delete the profileFields values when deleting the main model.
+     * {@inheritDoc}
      */
     public function delete()
     {

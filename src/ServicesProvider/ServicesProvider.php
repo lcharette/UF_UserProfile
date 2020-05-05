@@ -10,26 +10,30 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\ServicesProvider;
 
+use Psr\Container\ContainerInterface;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\Group;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
+
 /**
- * @author Alex Weissman (https://alexanderweissman.com)
+ * Registers services for the UserProfile sprinkle.
  */
 class ServicesProvider
 {
     /**
-     * Register extended user fields services.
+     * Register UserProfile services.
      *
-     * @param Container $container A DI container implementing ArrayAccess and container-interop.
+     * @param ContainerInterface $container
      */
     public function register($container)
     {
         /*
          * Extend the 'classMapper' service to register model classes.
          *
-         * Mappings added: OwlerUser
+         * Mappings added: user & group
          */
         $container->extend('classMapper', function ($classMapper, $c) {
-            $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\UserProfile\Database\Models\User');
-            $classMapper->setClassMapping('group', 'UserFrosting\Sprinkle\UserProfile\Database\Models\Group');
+            $classMapper->setClassMapping('user', User::class);
+            $classMapper->setClassMapping('group', Group::class);
 
             return $classMapper;
         });

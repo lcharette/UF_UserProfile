@@ -23,7 +23,7 @@ class ProfileFieldsTable extends Migration
     /**
      * {@inheritdoc}
      */
-    public $dependencies = [
+    public static $dependencies = [
         '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\UsersTable',
     ];
 
@@ -43,7 +43,7 @@ class ProfileFieldsTable extends Migration
                 $table->engine = 'InnoDB';
                 $table->collation = 'utf8_unicode_ci';
                 $table->charset = 'utf8';
-                $table->foreign('user_id')->references('id')->on('users');
+                //$table->foreign('user_id')->references('id')->on('users');
                 $table->index('id');
             });
         }

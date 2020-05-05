@@ -24,7 +24,7 @@ class ProfileFieldsTable extends Migration
     /**
      * {@inheritdoc}
      */
-    public $dependencies = [
+    public static $dependencies = [
         '\UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200\ProfileFieldsTable',
     ];
 
@@ -34,7 +34,7 @@ class ProfileFieldsTable extends Migration
     public function up()
     {
         $this->schema->table('profile_fields', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
+            //$table->dropForeign(['user_id']);
         });
     }
 

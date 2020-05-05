@@ -11,16 +11,13 @@
 namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
 use UserFrosting\Sprinkle\Account\Database\Models\User as CoreUser;
+use UserFrosting\Sprinkle\Core\Database\Relations\MorphManySyncable;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelpers;
 
 /**
  * User Class.
  *
  * Extend the core User Model to add the custom user profile fields
- *
- * @extend CoreUser
- *
- * @author Louis Charette
  */
 class User extends CoreUser
 {
@@ -28,6 +25,8 @@ class User extends CoreUser
 
     /**
      * Eloquent relation to the profile table.
+     *
+     * @return MorphManySyncable
      */
     public function profileFields()
     {
@@ -36,8 +35,7 @@ class User extends CoreUser
 
     /**
      * Delete the profileFields values when deleting the main model.
-     *
-     * @param bool $hardDelete (default: false)
+     * {@inheritDoc}
      */
     public function delete($hardDelete = false)
     {

@@ -35,7 +35,7 @@ class User extends CoreUser
 
     /**
      * Delete the profileFields values when deleting the main model.
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function delete($hardDelete = false)
     {

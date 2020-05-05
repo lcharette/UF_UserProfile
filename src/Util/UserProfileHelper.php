@@ -31,7 +31,7 @@ class UserProfileHelper
     protected $schemaCacheKey = 'customProfileUserSchema';
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param ContainerInterface $ci
      */
@@ -44,7 +44,7 @@ class UserProfileHelper
      * Return the value for the specified user profile.
      *
      * @param UserInterface $user
-     * @param bool $transform
+     * @param bool          $transform
      */
     public function getProfile($user, $transform = false)
     {

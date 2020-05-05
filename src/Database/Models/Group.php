@@ -35,7 +35,7 @@ class Group extends CoreGroup
 
     /**
      * Delete the profileFields values when deleting the main model.
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function delete()
     {

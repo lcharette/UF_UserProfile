@@ -12,9 +12,9 @@ namespace UserFrosting\Sprinkle\UserProfile\Util;
 
 use Illuminate\Cache\Repository as Cache;
 use Illuminate\Database\Eloquent\Collection;
-use UserFrosting\Support\Repository\Repository as Config;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\Support\Repository\Repository as Config;
 use UserFrosting\UniformResourceLocator\ResourceLocatorInterface;
 
 /**

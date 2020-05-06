@@ -11,9 +11,12 @@
 namespace UserFrosting\Sprinkle\UserProfile\Tests\Unit;
 
 use Mockery;
-use Psr\Container\ContainerInterface;
+use Illuminate\Cache\Repository as Cache;
+use UserFrosting\Support\Repository\Repository as Config;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
 use UserFrosting\Tests\TestCase;
+use UserFrosting\UniformResourceLocator\ResourceLocatorInterface;
 
 class UserProfileHelperTest extends TestCase
 {
@@ -25,38 +28,142 @@ class UserProfileHelperTest extends TestCase
 
     public function testConstructor(): void
     {
-        $ci = Mockery::mock(ContainerInterface::class);
-        $helper = new UserProfileHelper($ci);
+        $locator = Mockery::mock(ResourceLocatorInterface::class);
+        $cache = Mockery::mock(Cache::class);
+        $config = Mockery::mock(Config::class);
+
+        $helper = new UserProfileHelper($locator, $cache, $config);
         $this->assertInstanceOf(UserProfileHelper::class, $helper);
     }
 
     /**
      * @depends testConstructor
      */
-    /*public function testgetFieldsSchema(): void
+    public function testgetFieldsSchema(): void
     {
-        $ci = Mockery::mock(ContainerInterface::class);
-        $ci->config = ['customProfile.cache' => false];
-        $ci->cache = null;
+        $locator = Mockery::mock(ResourceLocatorInterface::class)
+            ->shouldReceive('findResources')
+            ->with('schema://userProfile', true, false)
+            ->andReturn([__DIR__ . '/schema/userProfile'])
+            ->getMock();
+        $cache = Mockery::mock(Cache::class);
+        $config = Mockery::mock(Config::class)
+            ->shouldReceive('offsetGet')
+            ->with('customProfile.cache')
+            ->andReturn(false)
+            ->getMock();
 
-        $helper = new UserProfileHelper($ci);
+        $helper = new UserProfileHelper($locator, $cache, $config);
 
-        $foo = $helper->getFieldsSchema();
-        var_dump($foo);
-    }*/
+        $schema = $helper->getFieldsSchema();
+
+        $this->assertIsArray($schema);
+        $this->assertSame([
+            'location' => [
+                'validators' => [
+                    'length' => [
+                        'label'   => 'LOCATION',
+                        'min'     => 1,
+                        'max'     => 255,
+                        'message' => 'VALIDATE.LENGTH_RANGE',
+                    ],
+                ],
+                'form' => [
+                    'type'  => 'text',
+                    'label' => 'LOCATION',
+                    'icon'  => 'fa-globe',
+                ],
+            ],
+            'gender' => [
+                'validators' => [
+                ],
+                'form' => [
+                    'type'    => 'select',
+                    'label'   => 'GENDER',
+                    'icon'    => 'fa-transgender',
+                    'options' => [
+                        '1' => 'GENDER.MALE',
+                        '2' => 'GENDER.FEMALE',
+                        '3' => 'GENDER.NEUTRAL',
+                    ],
+                ],
+            ],
+            'active' => [
+                'validators' => [
+                ],
+                'form' => [
+                    'type'    => 'select',
+                    'label'   => 'ACTIVE',
+                    'options' => [
+                        '0' => 'NO',
+                        '1' => 'YES',
+                    ],
+                ],
+            ],
+        ], $schema);
+    }
 
     /**
      * @depends testConstructor
      * getFieldsSchema
      */
-    /*public function testgetProfile(): void
+    public function testgetProfile(): void
     {
-        $ci = Mockery::mock(ContainerInterface::class);
-        $helper = new UserProfileHelper($ci);
+        // Set services
+        $locator = Mockery::mock(ResourceLocatorInterface::class)
+            ->shouldReceive('findResources')
+            ->with('schema://userProfile', true, false)
+            ->andReturn([__DIR__ . '/schema/userProfile'])
+            ->getMock();
+        $cache = Mockery::mock(Cache::class);
+        $config = Mockery::mock(Config::class)
+            ->shouldReceive('offsetGet')
+            ->with('customProfile.cache')
+            ->andReturn(false)
+            ->getMock();
 
-        $user = $this->createTestUser();
+        // Get helper
+        $helper = new UserProfileHelper($locator, $cache, $config);
 
-        $foo = $helper->getProfile($user);
-        var_dump($foo);
-    }*/
+        // Set profile raw data
+        $data = collect([
+            ['slug' => 'location', 'value' => 'foo'],
+            ['slug' => 'gender', 'value' => '1'],
+        ]);
+
+        // Create fake user
+        $user = Mockery::mock(User::class)
+            ->shouldReceive('getAttribute')
+            ->with('profileFields')
+            ->andReturn($data)
+            ->getMock();
+
+        // Act
+        $profile = $helper->getProfile($user, false);
+
+        // Expection
+        $expectation = [
+            'location' => 'foo',
+            'gender'   => '1',
+            'active'   => '',
+        ];
+
+        // Assert
+        $this->assertEquals(collect($expectation), $profile);
+        $this->assertSame($expectation, $profile->toArray());
+
+        // Act again with true
+        $profile = $helper->getProfile($user, true);
+
+        // Expection
+        $expectation = [
+            'location' => 'foo',
+            'gender'   => 'GENDER.MALE', // Transformed here
+            'active'   => '',
+        ];
+
+        // Assert
+        $this->assertEquals(collect($expectation), $profile);
+        $this->assertSame($expectation, $profile->toArray());
+    }
 }

@@ -10,10 +10,10 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Tests\Integration;
 
-use UserFrosting\Sprinkle\Account\Database\Models\Interfaces\UserInterface;
 use UserFrosting\Sprinkle\Account\Tests\withTestUser;
 use UserFrosting\Sprinkle\Core\Tests\RefreshDatabase;
 use UserFrosting\Sprinkle\Core\Tests\TestDatabase;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
 use UserFrosting\Tests\TestCase;
 
@@ -23,9 +23,6 @@ class UserProfileHelperTest extends TestCase
     use RefreshDatabase;
     use withTestUser;
 
-    /** @var UserInterface */
-    protected $user;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -33,9 +30,6 @@ class UserProfileHelperTest extends TestCase
         // Setup test database
         $this->setupTestDatabase();
         $this->refreshDatabase();
-
-        // Create test user
-        $this->user = $this->createTestUser();
 
         // Register custom scheme location
         $this->ci->locator->registerLocation('test', __DIR__);
@@ -49,7 +43,7 @@ class UserProfileHelperTest extends TestCase
         // Force no cache for now
         $this->ci->config['customProfile.cache'] = false;
 
-        $helper = new UserProfileHelper($this->ci);
+        $helper = new UserProfileHelper($this->ci->locator, $this->ci->cache, $this->ci->config);
         $this->assertInstanceOf(UserProfileHelper::class, $helper);
 
         return $helper;
@@ -110,4 +104,20 @@ class UserProfileHelperTest extends TestCase
             ],
         ], $schema);
     }
+
+    /**
+     * @depends testConstructor
+     * @depends testgetFieldsSchema
+     */
+    /*public function testgetProfile(UserProfileHelper $helper): void
+    {
+        // Create test user. Result is the base user. Switch to our model
+        $user = $this->createTestUser();
+        $user = User::find($user->id);
+        $this->assertInstanceOf(User::class, $user);
+
+        $profile = $helper->getProfile($user, false);
+
+        $this->assertSame([], $profile);
+    }*/
 }

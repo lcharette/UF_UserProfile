@@ -32,6 +32,7 @@ use UserFrosting\Support\Repository\Loader\YamlFileLoader;
 
 class UserProfileController extends UserController
 {
+    /** @var UserProfileHelper */
     protected $profileHelper;
 
     /**
@@ -41,7 +42,7 @@ class UserProfileController extends UserController
      */
     public function __construct(ContainerInterface $ci)
     {
-        $this->profileHelper = new UserProfileHelper($ci);
+        $this->profileHelper = new UserProfileHelper($ci->locator, $ci->cache, $ci->config);
 
         return parent::__construct($ci);
     }

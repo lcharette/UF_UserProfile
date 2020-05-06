@@ -18,6 +18,8 @@ use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelper
  * User Class.
  *
  * Extend the core User Model to add the custom user profile fields
+ *
+ * @property ProfileFields $profileFields
  */
 class User extends CoreUser
 {
@@ -30,7 +32,7 @@ class User extends CoreUser
      */
     public function profileFields()
     {
-        return $this->morphMany('\UserFrosting\Sprinkle\UserProfile\Database\Models\ProfileFields', 'parent');
+        return $this->morphMany(ProfileFields::class, 'parent');
     }
 
     /**

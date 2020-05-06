@@ -10,9 +10,12 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Util;
 
-use Psr\Container\ContainerInterface;
-use UserFrosting\Sprinkle\Account\Database\Models\Interfaces\UserInterface;
+use Illuminate\Cache\Repository as Cache;
+use Illuminate\Database\Eloquent\Collection;
+use UserFrosting\Support\Repository\Repository as Config;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\UniformResourceLocator\ResourceLocatorInterface;
 
 /**
  * CustomProfileHelper Class.
@@ -21,8 +24,14 @@ use UserFrosting\Support\Repository\Loader\YamlFileLoader;
  */
 class UserProfileHelper
 {
-    /** @var ContainerInterface */
-    protected $ci;
+    /** @var Config */
+    protected $config;
+
+    /** @var Cache */
+    protected $cache;
+
+    /** @var ResourceLocatorInterface */
+    protected $locator;
 
     /** @var string The schemas to load */
     protected $schema = 'userProfile';
@@ -33,20 +42,26 @@ class UserProfileHelper
     /**
      * Constructor.
      *
-     * @param ContainerInterface $ci
+     * @param ResourceLocatorInterface $locator
+     * @param Cache                    $cache
+     * @param Config                   $config
      */
-    public function __construct(ContainerInterface $ci)
+    public function __construct(ResourceLocatorInterface $locator, Cache $cache, Config $config)
     {
-        $this->ci = $ci;
+        $this->locator = $locator;
+        $this->cache = $cache;
+        $this->config = $config;
     }
 
     /**
      * Return the value for the specified user profile.
      *
-     * @param UserInterface $user
-     * @param bool          $transform
+     * @param User $user
+     * @param bool $transform
+     *
+     * @return Collection<string,string>
      */
-    public function getProfile($user, $transform = false)
+    public function getProfile(User $user, bool $transform = false)
     {
         //N.B.: User cache not yet implemented in master/develop. See UF branch `feature-cache`
         //return $user->cache->rememberForever('profileFields', function() use ($user) {
@@ -68,13 +83,11 @@ class UserProfileHelper
             $value = $userFields->get($key, $default);
 
             // Add the pretty formated version
-            if ($transform && $item['form']['type'] == 'select') {
-                $value = ($item['form']['options'][$value]) ?: $value;
+            if ($transform && $item['form']['type'] == 'select' && isset($item['form']['options'][$value])) {
+                $value = $item['form']['options'][$value];
             }
 
-            return [
-                $key => $value,
-            ];
+            return [$key => $value];
         });
 
         //});
@@ -116,11 +129,8 @@ class UserProfileHelper
      */
     public function getFieldsSchema()
     {
-        $config = $this->ci->config;
-        $cache = $this->ci->cache;
-
-        if ($config['customProfile.cache']) {
-            return $cache->rememberForever($this->schemaCacheKey, function () {
+        if ($this->config['customProfile.cache']) {
+            return $this->cache->rememberForever($this->schemaCacheKey, function () {
                 return $this->getSchemaContent($this->schema);
             });
         } else {
@@ -136,13 +146,11 @@ class UserProfileHelper
      */
     protected function getSchemaContent(string $schemaLocation)
     {
-        $locator = $this->ci->locator;
-
         // Define the YAML loader
         $loader = new YamlFileLoader([]);
 
         // Get all the location where we can find config schemas
-        $paths = array_reverse($locator->findResources('schema://' . $schemaLocation, true, false));
+        $paths = array_reverse($this->locator->findResources('schema://' . $schemaLocation, true, false));
 
         // For every location...
         foreach ($paths as $path) {

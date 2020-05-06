@@ -47,7 +47,7 @@ class ProfileFieldsTable extends Migration
         ProfileFields::where('parent_type', 'UserFrosting\Sprinkle\UserProfile\Database\Models\Group')->delete();
 
         $this->schema->table('profile_fields', function (Blueprint $table) {
-            $table->foreign('parent_id')->references('id')->on('users');
+            //$table->foreign('parent_id')->references('id')->on('users');
         });
     }
 }

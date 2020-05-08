@@ -9,14 +9,27 @@ php:
 
 env:
   jobs:
-    - UF_BRANCH=4.3.*
-    - UF_BRANCH=4.4.*
-    - UF_BRANCH=dev-develop
+    - UF_BRANCH=4.3.* DB=mysql TESTSUITE=Unit
+    - UF_BRANCH=4.4.* DB=mysql TESTSUITE=Unit
+    - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Unit
+    - UF_BRANCH=4.3.* DB=mysql TESTSUITE=Integration
+    - UF_BRANCH=4.4.* DB=mysql TESTSUITE=Integration
+    - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Integration
+    - UF_BRANCH=4.3.* DB=sqlite TESTSUITE=Integration
+    - UF_BRANCH=4.4.* DB=sqlite TESTSUITE=Integration
+    - UF_BRANCH=dev-develop DB=sqlite TESTSUITE=Integration
+    - UF_BRANCH=4.3.* DB=pgsql TESTSUITE=Integration
+    - UF_BRANCH=4.4.* DB=pgsql TESTSUITE=Integration
+    - UF_BRANCH=dev-develop DB=pgsql TESTSUITE=Integration
 
 jobs:
   fast_finish: true
   allow_failures:
-    - env: UF_BRANCH=dev-develop
+    - env:
+      - UF_BRANCH=dev-develop DB=pgsql TESTSUITE=Integration
+      - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Unit
+      - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Integration
+      - UF_BRANCH=dev-develop DB=sqlite TESTSUITE=Integration
 
 cache:
   directories:
@@ -37,7 +50,7 @@ before_script:
 
 script:
   # run unit tests
-  - app/vendor/bin/phpunit -c app/sprinkles/UserProfile/phpunit.xml --coverage-clover=app/sprinkles/UserProfile/coverage.xml
+  - app/vendor/bin/phpunit -c app/sprinkles/UserProfile/phpunit.xml --coverage-clover=app/sprinkles/UserProfile/coverage.xml --testsuite $TESTSUITE
 
 after_failure:
   - cat app/log/userfrosting.log

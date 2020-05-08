@@ -10,10 +10,10 @@
          stderr="true"
          stopOnFailure="true">
     <testsuites>
-        <testsuite name="Unit Tests">
+        <testsuite name="Unit">
             <directory suffix="Test.php">tests/Unit</directory>
         </testsuite>
-        <testsuite name="Integration Tests">
+        <testsuite name="Integration">
             <directory suffix=".php">tests/Integration</directory>
         </testsuite>
     </testsuites>

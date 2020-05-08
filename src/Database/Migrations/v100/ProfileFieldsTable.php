@@ -11,7 +11,8 @@
 namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100;
 
 use Illuminate\Database\Schema\Blueprint;
-use UserFrosting\System\Bakery\Migration;
+use UserFrosting\Sprinkle\Account\Database\Migrations\v400\UsersTable;
+use UserFrosting\Sprinkle\Core\Database\Migration;
 
 /**
  * Profile fields table migration.
@@ -24,7 +25,7 @@ class ProfileFieldsTable extends Migration
      * {@inheritdoc}
      */
     public static $dependencies = [
-        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\UsersTable',
+        UsersTable::class,
     ];
 
     /**

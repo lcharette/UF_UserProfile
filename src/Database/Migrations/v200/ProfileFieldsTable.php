@@ -11,7 +11,9 @@
 namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200;
 
 use Illuminate\Database\Schema\Blueprint;
+use UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable;
 use UserFrosting\Sprinkle\Core\Database\Migration;
+use UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100\ProfileFieldsTable as V100ProfileFieldsTable;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 
 /**
@@ -23,8 +25,8 @@ class ProfileFieldsTable extends Migration
      * {@inheritdoc}
      */
     public static $dependencies = [
-        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable',
-        '\UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100\ProfileFieldsTable',
+        GroupsTable::class,
+        V100ProfileFieldsTable::class,
     ];
 
     /**
@@ -45,11 +47,15 @@ class ProfileFieldsTable extends Migration
 
     /**
      * {@inheritdoc}
+     * N.B.: SQLite doesn't support multiple calls to dropColumn / renameColumn in a single modification.
      */
     public function down()
     {
         $this->schema->table('profile_fields', function (Blueprint $table) {
             $table->renameColumn('parent_id', 'user_id');
+        });
+
+        $this->schema->table('profile_fields', function (Blueprint $table) {
             $table->dropColumn(['parent_type']);
         });
     }

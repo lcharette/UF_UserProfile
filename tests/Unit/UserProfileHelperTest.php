@@ -226,10 +226,7 @@ class UserProfileHelperTest extends TestCase
         ]);
 
         $profileFields = Mockery::mock(ProfileFields::class);
-        $profileFields->shouldReceive('updateOrCreate')->once()->with(
-            ['slug' => 'location'],
-            ['value' => 'bar'],
-        )->andReturn(null);
+        $profileFields->shouldReceive('updateOrCreate')->once()->with(['slug' => 'location'], ['value' => 'bar'])->andReturn(null);
 
         // Create fake user
         $user = Mockery::mock(User::class);

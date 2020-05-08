@@ -11,9 +11,7 @@
 namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200;
 
 use Illuminate\Database\Schema\Blueprint;
-use UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable;
 use UserFrosting\Sprinkle\Core\Database\Migration;
-use UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100\ProfileFieldsTable as V100ProfileFieldsTable;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 
 /**
@@ -25,8 +23,8 @@ class ProfileFieldsTable extends Migration
      * {@inheritdoc}
      */
     public static $dependencies = [
-        GroupsTable::class,
-        V100ProfileFieldsTable::class,
+        '\UserFrosting\Sprinkle\Account\Database\Migrations\v400\GroupsTable',
+        '\UserFrosting\Sprinkle\UserProfile\Database\Migrations\v100\ProfileFieldsTable',
     ];
 
     /**

@@ -12,7 +12,6 @@ namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v201;
 
 use Illuminate\Database\Schema\Blueprint;
 use UserFrosting\Sprinkle\Core\Database\Migration;
-use UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200\ProfileFieldsTable as V200ProfileFieldsTable;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\ProfileFields;
 
 /**
@@ -26,7 +25,7 @@ class ProfileFieldsTable extends Migration
      * {@inheritdoc}
      */
     public static $dependencies = [
-        V200ProfileFieldsTable::class,
+        '\UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200\ProfileFieldsTable',
     ];
 
     /**

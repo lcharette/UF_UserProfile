@@ -9,9 +9,9 @@ php:
 
 env:
   jobs:
-    - UF_BRANCH=4.3.* DB=mysql TESTSUITE=Unit
-    - UF_BRANCH=4.4.* DB=mysql TESTSUITE=Unit
-    - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Unit
+    - UF_BRANCH=4.3.* TESTSUITE=Unit
+    - UF_BRANCH=4.4.* TESTSUITE=Unit
+    - UF_BRANCH=dev-develop TESTSUITE=Unit
     - UF_BRANCH=4.3.* DB=mysql TESTSUITE=Integration
     - UF_BRANCH=4.4.* DB=mysql TESTSUITE=Integration
     - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Integration
@@ -25,11 +25,10 @@ env:
 jobs:
   fast_finish: true
   allow_failures:
-    - env:
-      - UF_BRANCH=dev-develop DB=pgsql TESTSUITE=Integration
-      - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Unit
-      - UF_BRANCH=dev-develop DB=mysql TESTSUITE=Integration
-      - UF_BRANCH=dev-develop DB=sqlite TESTSUITE=Integration
+    - env: UF_BRANCH=dev-develop TESTSUITE=Unit
+    - env: UF_BRANCH=dev-develop DB=mysql TESTSUITE=Integration
+    - env: UF_BRANCH=dev-develop DB=pgsql TESTSUITE=Integration
+    - env: UF_BRANCH=dev-develop DB=sqlite TESTSUITE=Integration
 
 cache:
   directories:
@@ -43,6 +42,8 @@ before_install:
   # move and add sprinkle
   - mv ../UF_UserProfile app/sprinkles/UserProfile/
   - echo "{\"base\":[\"core\",\"account\",\"admin\",\"FormGenerator\",\"UserProfile\"]}" > app/sprinkles.json
+  # set up db
+  - bash build/before_install.sh $DB
 
 before_script:
   # install deps and UF

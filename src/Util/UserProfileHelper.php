@@ -96,9 +96,10 @@ class UserProfileHelper
     /**
      * Set one or more user profile fields from an array.
      *
-     * @param mixed $data
+     * @param User $user
+     * @param mixed[]|Collection $data The profile data (formated as array<slug, value>, or as a collection)
      */
-    public function setProfile($user, $data)
+    public function setProfile(User $user, $data): void
     {
         // Get the user fields
         $userFields = $this->getProfile($user);
@@ -126,8 +127,10 @@ class UserProfileHelper
     /**
      * Return the json schema for the GROUP custom profile fields.
      * Use the cache if the config is on or return directly otherwise.
+     *
+     * @return mixed[]
      */
-    public function getFieldsSchema()
+    public function getFieldsSchema(): array
     {
         if ($this->config['customProfile.cache']) {
             return $this->cache->rememberForever($this->schemaCacheKey, function () {
@@ -140,11 +143,12 @@ class UserProfileHelper
 
     /**
      * Load the specified schemas
-     * Loop trhought all the available json schema inside a type of schemas.
+     * Loop throught all the available json schema inside a type of schemas.
      *
      * @param string $schemaLocation
+     * @return mixed[]
      */
-    protected function getSchemaContent(string $schemaLocation)
+    protected function getSchemaContent(string $schemaLocation): array
     {
         // Define the YAML loader
         $loader = new YamlFileLoader([]);

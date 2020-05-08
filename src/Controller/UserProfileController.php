@@ -10,10 +10,9 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Controller;
 
-use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Fortress\RequestDataTransformer;
@@ -27,7 +26,6 @@ use UserFrosting\Sprinkle\Core\Mail\EmailRecipient;
 use UserFrosting\Sprinkle\Core\Mail\TwigMailMessage;
 use UserFrosting\Sprinkle\FormGenerator\Form;
 use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
-use UserFrosting\Support\Exception\BadRequestException;
 use UserFrosting\Support\Exception\ForbiddenException;
 use UserFrosting\Support\Exception\NotFoundException;
 use UserFrosting\Support\Repository\Loader\YamlFileLoader;
@@ -369,13 +367,13 @@ class UserProfileController extends UserController
         }
 
         return $this->ci->view->render($response, 'pages/user.html.twig', [
-            'user'    => $user,
-            'locales' => $locales,
-            'fields'  => $fields,
-            'tools'   => $editButtons,
-            'widgets' => $widgets,
+            'user'            => $user,
+            'locales'         => $locales,
+            'fields'          => $fields,
+            'tools'           => $editButtons,
+            'widgets'         => $widgets,
             'delete_redirect' => $this->ci->router->pathFor('uri_users'),
-            'form'    => [
+            'form'            => [
                 'fields'       => $fields,
                 'customFields' => $form->generate(),
                 'edit_buttons' => $editButtons,

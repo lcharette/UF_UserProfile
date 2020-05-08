@@ -58,7 +58,7 @@ class UserProfileHelper
      * Return the value for the specified user profile.
      *
      * @param User|Group $user
-     * @param bool $transform
+     * @param bool       $transform
      *
      * @return Collection<string,string>
      */
@@ -97,7 +97,7 @@ class UserProfileHelper
     /**
      * Set one or more user profile fields from an array.
      *
-     * @param User|Group $user
+     * @param User|Group         $user
      * @param mixed[]|Collection $data The profile data (formated as array<slug, value>, or as a collection)
      */
     public function setProfile($user, $data): void
@@ -147,6 +147,7 @@ class UserProfileHelper
      * Loop throught all the available json schema inside a type of schemas.
      *
      * @param string $schemaLocation
+     *
      * @return mixed[]
      */
     protected function getSchemaContent(string $schemaLocation): array

@@ -11,12 +11,11 @@
 namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200;
 
 use Illuminate\Database\Schema\Blueprint;
-use UserFrosting\System\Bakery\Migration;
+use UserFrosting\Sprinkle\Core\Database\Migration;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 
 /**
  * Group profile fields table migration.
- *
- * @extends Migration
  */
 class ProfileFieldsTable extends Migration
 {
@@ -30,12 +29,16 @@ class ProfileFieldsTable extends Migration
 
     /**
      * {@inheritdoc}
+     *  N.B.: On two separate line, otherwise it doesn't work with the test env.
      */
     public function up()
     {
         $this->schema->table('profile_fields', function (Blueprint $table) {
             // Default is used for compatibility with old version (exisitng user entry)
-            $table->string('parent_type')->after('user_id')->default('UserFrosting\\\Sprinkle\\\UserProfile\\\Models\\\User');
+            $table->string('parent_type')->after('user_id')->default(User::class);
+        });
+
+        $this->schema->table('profile_fields', function (Blueprint $table) {
             $table->renameColumn('user_id', 'parent_id');
         });
     }

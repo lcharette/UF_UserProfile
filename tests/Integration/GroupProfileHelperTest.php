@@ -10,18 +10,16 @@
 
 namespace UserFrosting\Sprinkle\UserProfile\Tests\Integration;
 
-use UserFrosting\Sprinkle\Account\Tests\withTestUser;
 use UserFrosting\Sprinkle\Core\Tests\RefreshDatabase;
 use UserFrosting\Sprinkle\Core\Tests\TestDatabase;
-use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
-use UserFrosting\Sprinkle\UserProfile\Util\UserProfileHelper;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\Group;
+use UserFrosting\Sprinkle\UserProfile\Util\GroupProfileHelper;
 use UserFrosting\Tests\TestCase;
 
-class UserProfileHelperTest extends TestCase
+class GroupProfileHelperTest extends TestCase
 {
     use TestDatabase;
     use RefreshDatabase;
-    use withTestUser;
 
     public function setUp(): void
     {
@@ -35,13 +33,13 @@ class UserProfileHelperTest extends TestCase
         $this->ci->locator->registerLocation('test', __DIR__);
     }
 
-    public function testConstructor(): UserProfileHelper
+    public function testConstructor(): GroupProfileHelper
     {
         // Force no cache for now
         $this->ci->config['customProfile.cache'] = false;
 
-        $helper = new UserProfileHelper($this->ci->locator, $this->ci->cache, $this->ci->config);
-        $this->assertInstanceOf(UserProfileHelper::class, $helper);
+        $helper = new GroupProfileHelper($this->ci->locator, $this->ci->cache, $this->ci->config);
+        $this->assertInstanceOf(GroupProfileHelper::class, $helper);
 
         return $helper;
     }
@@ -49,7 +47,7 @@ class UserProfileHelperTest extends TestCase
     /**
      * @depends testConstructor
      */
-    public function testgetFieldsSchema(UserProfileHelper $helper): void
+    public function testgetFieldsSchema(GroupProfileHelper $helper): void
     {
         $schema = $helper->getFieldsSchema();
 
@@ -103,14 +101,15 @@ class UserProfileHelperTest extends TestCase
      * @depends testConstructor
      * @depends testgetFieldsSchema
      */
-    public function testgetProfile(UserProfileHelper $helper): void
+    public function testgetProfile(GroupProfileHelper $helper): void
     {
-        // Create test user. Result is the base user. Switch to our model
-        $user = $this->createTestUser();
-        $user = User::find($user->id);
-        $this->assertInstanceOf(User::class, $user);
+        // Create test group. Result is the base group. Switch to our model
+        $fm = $this->ci->factory;
+        $group = $fm->create('UserFrosting\Sprinkle\Account\Database\Models\Group');
+        $group = Group::find($group->id);
+        $this->assertInstanceOf(Group::class, $group);
 
-        $profile = $helper->getProfile($user, false);
+        $profile = $helper->getProfile($group, false);
 
         // Expection
         $expectation = [
@@ -123,12 +122,12 @@ class UserProfileHelperTest extends TestCase
         $this->assertSame($expectation, $profile->toArray());
 
         // Test set
-        $helper->setProfile($user, ['location' => 'bar']);
-        $helper->setProfile($user, collect(['gender' => '1']));
+        $helper->setProfile($group, ['location' => 'bar']);
+        $helper->setProfile($group, collect(['gender' => '1']));
 
         // Check set worked
-        $user = User::find($user->id);
-        $profile = $helper->getProfile($user, true);
+        $group = Group::find($group->id);
+        $profile = $helper->getProfile($group, true);
 
         // Expection
         $expectation = [
@@ -150,7 +149,7 @@ class UserProfileHelperTest extends TestCase
         $this->ci->config['customProfile.cache'] = true;
         $this->ci->cache->flush();
 
-        $helper = new UserProfileHelper($this->ci->locator, $this->ci->cache, $this->ci->config);
+        $helper = new GroupProfileHelper($this->ci->locator, $this->ci->cache, $this->ci->config);
 
         $this->testgetFieldsSchema($helper);
     }

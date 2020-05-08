@@ -12,6 +12,7 @@ namespace UserFrosting\Sprinkle\UserProfile\Util;
 
 use Illuminate\Cache\Repository as Cache;
 use Illuminate\Database\Eloquent\Collection;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\Group;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 use UserFrosting\Support\Repository\Loader\YamlFileLoader;
 use UserFrosting\Support\Repository\Repository as Config;
@@ -56,12 +57,12 @@ class UserProfileHelper
     /**
      * Return the value for the specified user profile.
      *
-     * @param User $user
+     * @param User|Group $user
      * @param bool $transform
      *
      * @return Collection<string,string>
      */
-    public function getProfile(User $user, bool $transform = false)
+    public function getProfile($user, bool $transform = false)
     {
         //N.B.: User cache not yet implemented in master/develop. See UF branch `feature-cache`
         //return $user->cache->rememberForever('profileFields', function() use ($user) {
@@ -96,10 +97,10 @@ class UserProfileHelper
     /**
      * Set one or more user profile fields from an array.
      *
-     * @param User $user
+     * @param User|Group $user
      * @param mixed[]|Collection $data The profile data (formated as array<slug, value>, or as a collection)
      */
-    public function setProfile(User $user, $data): void
+    public function setProfile($user, $data): void
     {
         // Get the user fields
         $userFields = $this->getProfile($user);

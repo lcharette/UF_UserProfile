@@ -29,13 +29,13 @@ class MigrationsTest extends TestCase
         $this->refreshDatabase();
     }
 
-    public function testgetFieldsSchema(): void
+    public function testMigration(): void
     {
         /** @var \Illuminate\Database\Capsule\Manager */
         $db = $this->ci->db;
         $schema = $db->schema();
 
-        $this->assertSame([
+        $expecation = [
             'id',
             'slug',
             'value',
@@ -43,12 +43,15 @@ class MigrationsTest extends TestCase
             'updated_at',
             'parent_type',
             'parent_id',
-        ], $schema->getColumnListing('profile_fields'));
+        ];
+        $result = $schema->getColumnListing('profile_fields');
+
+        $this->assertEquals(sort($expecation), sort($result));
 
         /** @var Migrator */
         $migrator = $this->ci->migrator;
         $migrator->rollback();
 
-        $this->assertSame([], $schema->getColumnListing('profile_fields'));
+        $this->assertEquals([], $schema->getColumnListing('profile_fields'));
     }
 }

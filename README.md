@@ -111,4 +111,4 @@ You can also specify **groups** custom fields by saving any schema in the the `s
 ![Screenshot 1](/.github/screenshots/UF_UserProfile2.png?raw=true)
 
 # License
-By [Louis Charette](https://github.com/lcharette). Copyright (c) 2017, free to use in personal and commercial software as per the MIT license.
+By [Louis Charette](https://github.com/lcharette). Copyright (c) 2020, free to use in personal and commercial software as per the MIT license.

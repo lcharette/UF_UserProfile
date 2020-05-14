@@ -1,5 +1,12 @@
 # Change Log
 
+## [3.0.0]
+- Added support for FormGenerator 4.0.
+- Added automated testing.
+- Updated GroupController and UserController to match latest UF version.
+- GroupProfileHelper & UserProfileHelper constructor now only requires the necessary services.
+- Updated migration support.
+
 ## [2.1.1]
 - Fix modals on admin panel ([#5]; Thanks @Jamezsss)
 
@@ -41,6 +48,7 @@
 ## 0.0.1
 - Initial beta release
 
+[3.0.0]: https://github.com/lcharette/UF_UserProfile/compare/2.1.1...3.0.0
 [2.1.1]: https://github.com/lcharette/UF_UserProfile/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/lcharette/UF_UserProfile/compare/2.0.9...2.1.0
 [2.0.9]: https://github.com/lcharette/UF_UserProfile/compare/2.0.8...2.0.9

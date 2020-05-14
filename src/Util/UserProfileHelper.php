@@ -3,15 +3,20 @@
 /*
  * UF Custom User Profile Field Sprinkle
  *
- * @link https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2017 Louis Charette
- * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2020 Louis Charette
+ * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\UserProfile\Util;
 
-use Interop\Container\ContainerInterface;
+use Illuminate\Cache\Repository as Cache;
+use Illuminate\Database\Eloquent\Collection;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\Group;
+use UserFrosting\Sprinkle\UserProfile\Database\Models\User;
 use UserFrosting\Support\Repository\Loader\YamlFileLoader;
+use UserFrosting\Support\Repository\Repository as Config;
+use UserFrosting\UniformResourceLocator\ResourceLocatorInterface;
 
 /**
  * CustomProfileHelper Class.
@@ -20,31 +25,44 @@ use UserFrosting\Support\Repository\Loader\YamlFileLoader;
  */
 class UserProfileHelper
 {
-    protected $ci;
+    /** @var Config */
+    protected $config;
 
+    /** @var Cache */
+    protected $cache;
+
+    /** @var ResourceLocatorInterface */
+    protected $locator;
+
+    /** @var string The schemas to load */
     protected $schema = 'userProfile';
+
+    /** @var string The key used to cache the schema */
     protected $schemaCacheKey = 'customProfileUserSchema';
 
     /**
-     * __construct function.
+     * Constructor.
      *
-     * @param ContainerInterface $ci
-     *
-     * @return void
+     * @param ResourceLocatorInterface $locator
+     * @param Cache                    $cache
+     * @param Config                   $config
      */
-    public function __construct(ContainerInterface $ci)
+    public function __construct(ResourceLocatorInterface $locator, Cache $cache, Config $config)
     {
-        $this->ci = $ci;
+        $this->locator = $locator;
+        $this->cache = $cache;
+        $this->config = $config;
     }
 
     /**
      * Return the value for the specified user profile.
      *
-     * @param mixed $user
+     * @param User|Group $user
+     * @param bool       $transform
      *
-     * @return void
+     * @return Collection<string,string>
      */
-    public function getProfile($user, $transform = false)
+    public function getProfile($user, bool $transform = false)
     {
         //N.B.: User cache not yet implemented in master/develop. See UF branch `feature-cache`
         //return $user->cache->rememberForever('profileFields', function() use ($user) {
@@ -66,13 +84,11 @@ class UserProfileHelper
             $value = $userFields->get($key, $default);
 
             // Add the pretty formated version
-            if ($transform && $item['form']['type'] == 'select') {
-                $value = ($item['form']['options'][$value]) ?: $value;
+            if ($transform && $item['form']['type'] == 'select' && isset($item['form']['options'][$value])) {
+                $value = $item['form']['options'][$value];
             }
 
-            return [
-                $key => $value,
-            ];
+            return [$key => $value];
         });
 
         //});
@@ -81,11 +97,10 @@ class UserProfileHelper
     /**
      * Set one or more user profile fields from an array.
      *
-     * @param mixed $data
-     *
-     * @return void
+     * @param User|Group         $user
+     * @param mixed[]|Collection $data The profile data (formated as array<slug, value>, or as a collection)
      */
-    public function setProfile($user, $data)
+    public function setProfile($user, $data): void
     {
         // Get the user fields
         $userFields = $this->getProfile($user);
@@ -114,15 +129,12 @@ class UserProfileHelper
      * Return the json schema for the GROUP custom profile fields.
      * Use the cache if the config is on or return directly otherwise.
      *
-     * @return void
+     * @return mixed[]
      */
-    public function getFieldsSchema()
+    public function getFieldsSchema(): array
     {
-        $config = $this->ci->config;
-        $cache = $this->ci->cache;
-
-        if ($config['customProfile.cache']) {
-            return $cache->rememberForever($this->schemaCacheKey, function () {
+        if ($this->config['customProfile.cache']) {
+            return $this->cache->rememberForever($this->schemaCacheKey, function () {
                 return $this->getSchemaContent($this->schema);
             });
         } else {
@@ -132,28 +144,25 @@ class UserProfileHelper
 
     /**
      * Load the specified schemas
-     * Loop trhought all the available json schema inside a type of schemas.
+     * Loop throught all the available json schema inside a type of schemas.
      *
-     * @param string $schema
+     * @param string $schemaLocation
      *
-     * @return void
+     * @return mixed[]
      */
-    protected function getSchemaContent($schemaLocation)
+    protected function getSchemaContent(string $schemaLocation): array
     {
-        $schemas = [];
-        $locator = $this->ci->locator;
-
         // Define the YAML loader
         $loader = new YamlFileLoader([]);
 
         // Get all the location where we can find config schemas
-        $paths = array_reverse($locator->findResources('schema://'.$schemaLocation, true, false));
+        $paths = array_reverse($this->locator->findResources('schema://' . $schemaLocation, true, false));
 
         // For every location...
         foreach ($paths as $path) {
 
             // Get a list of all the schemas file
-            $files_with_path = glob($path.'/*.json');
+            $files_with_path = glob($path . '/*.json');
 
             // Load every found files
             foreach ($files_with_path as $file) {

@@ -3,14 +3,15 @@
 /*
  * UF Custom User Profile Field Sprinkle
  *
- * @link https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2017 Louis Charette
- * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2020 Louis Charette
+ * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\UserProfile\Database\Models;
 
 use UserFrosting\Sprinkle\Account\Database\Models\User as CoreUser;
+use UserFrosting\Sprinkle\Core\Database\Relations\MorphManySyncable;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelpers;
 
 /**
@@ -18,9 +19,7 @@ use UserFrosting\Sprinkle\UserProfile\Database\Models\Traits\ProfileFieldsHelper
  *
  * Extend the core User Model to add the custom user profile fields
  *
- * @extend CoreUser
- *
- * @author Louis Charette
+ * @property ProfileFields $profileFields
  */
 class User extends CoreUser
 {
@@ -28,18 +27,17 @@ class User extends CoreUser
 
     /**
      * Eloquent relation to the profile table.
+     *
+     * @return MorphManySyncable
      */
     public function profileFields()
     {
-        return $this->morphMany('\UserFrosting\Sprinkle\UserProfile\Database\Models\ProfileFields', 'parent');
+        return $this->morphMany(ProfileFields::class, 'parent');
     }
 
     /**
      * Delete the profileFields values when deleting the main model.
-     *
-     * @param bool $hardDelete (default: false)
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function delete($hardDelete = false)
     {

@@ -3,16 +3,16 @@
 /*
  * UF Custom User Profile Field Sprinkle
  *
- * @link https://github.com/lcharette/UF_UserProfile
- * @copyright Copyright (c) 2017 Louis Charette
- * @license https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/lcharette/UF_UserProfile
+ * @copyright Copyright (c) 2020 Louis Charette
+ * @license   https://github.com/lcharette/UF_UserProfile/blob/master/LICENSE (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\UserProfile\Database\Migrations\v201;
 
 use Illuminate\Database\Schema\Blueprint;
+use UserFrosting\Sprinkle\Core\Database\Migration;
 use UserFrosting\Sprinkle\UserProfile\Database\Models\ProfileFields;
-use UserFrosting\System\Bakery\Migration;
 
 /**
  * Group profile fields table migration.
@@ -24,7 +24,7 @@ class ProfileFieldsTable extends Migration
     /**
      * {@inheritdoc}
      */
-    public $dependencies = [
+    public static $dependencies = [
         '\UserFrosting\Sprinkle\UserProfile\Database\Migrations\v200\ProfileFieldsTable',
     ];
 
@@ -33,9 +33,9 @@ class ProfileFieldsTable extends Migration
      */
     public function up()
     {
-        $this->schema->table('profile_fields', function (Blueprint $table) {
+        /*$this->schema->table('profile_fields', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-        });
+        });*/
     }
 
     /**
@@ -46,8 +46,8 @@ class ProfileFieldsTable extends Migration
         // Delete all group related entries
         ProfileFields::where('parent_type', 'UserFrosting\Sprinkle\UserProfile\Database\Models\Group')->delete();
 
-        $this->schema->table('profile_fields', function (Blueprint $table) {
+        /*$this->schema->table('profile_fields', function (Blueprint $table) {
             $table->foreign('parent_id')->references('id')->on('users');
-        });
+        });*/
     }
 }

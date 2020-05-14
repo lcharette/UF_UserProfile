@@ -1,0 +1,26 @@
+{
+    "gender" : {
+        "validators" : {},
+        "form": {
+            "type": "select",
+            "label": "GENDER",
+            "icon": "fa-transgender",
+            "options" : {
+                "1" : "GENDER.MALE",
+                "2" : "GENDER.FEMALE",
+                "3" : "GENDER.NEUTRAL"
+            }
+        }
+    },
+    "active" : {
+        "validators" : {},
+        "form": {
+            "type": "select",
+            "label": "ACTIVE",
+            "options" : {
+                "0" : "NO",
+                "1" : "YES"
+            }
+        }
+    }
+}

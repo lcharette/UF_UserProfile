@@ -61,7 +61,7 @@ jobs:
       - name: Create SQLite Database
         run: |
           mkdir -p database
-          touch ${{ DB_NAME }}
+          touch database/database.sqlite
       
       - name: Bakery Debug
         run: php bakery debug

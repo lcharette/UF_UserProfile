@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+  schedule:
+  - cron: "0 0 * * 5"
+
+jobs:
+  PHPUnit:
+
+      strategy:
+        fail-fast: false
+        matrix:
+          php_versions: ['7.1', '7.2', '7.3', '7.4']
+          fg_version: ['3.0.0', '4.0.0']
+          uf_versions: ['4.3.*', '4.4.*']
+
+      runs-on: ubuntu-latest
+      name: PHPUnit - PHP ${{ matrix.php_versions }} - UF ${{ matrix.uf_versions }} - FormGenerator ${{ matrix.fg_version }}
+
+      env:
+        TEST_DB: default
+        UF_MODE: debug
+        DB_DRIVER: sqlite
+        DB_NAME: database/database.sqlite
+
+      steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php_versions }}
+          extensions: mbstring, dom, fileinfo, gd, memcached, redis
+          coverage: xdebug
+          tools: pecl, composer:v1
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 10
+
+      - name: Clone UserFrosting
+        run: | 
+          cd ../
+          composer create-project userfrosting/userfrosting UserFrosting ${{ matrix.uf_versions }} --no-install
+          mv ./UF_UserProfile ./UserFrosting/app/sprinkles/UserProfile/
+          mv ./UserFrosting ./UF_UserProfile
+
+      - name: Setup Sprinkles 
+        run: echo "{\"base\":[\"core\",\"account\",\"admin\",\"FormGenerator\",\"UserProfile\"]}" > ./app/sprinkles.json
+      
+      - name: Set FormGenerator version
+        run: composer require "lcharette/uf_formgenerator:${{ matrix.fg_version }}" --no-update
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+      
+      - name: Create SQLite Database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+      
+      - name: Bakery Debug
+        run: php bakery debug
+
+      - name: Migrate DB
+        run: php bakery migrate
+
+      - name: Build Assets
+        run: php bakery build-assets
+
+      - name: Execute tests
+        run: app/vendor/bin/phpunit -c app/sprinkles/UserProfile/phpunit.xml --coverage-clover=app/sprinkles/UserProfile/coverage.xml
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          root_dir: ./app/sprinkles/UserProfile/
+          fail_ci_if_error: true

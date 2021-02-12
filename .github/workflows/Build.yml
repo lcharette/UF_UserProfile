@@ -34,7 +34,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php_versions }}
-          extensions: mbstring, dom, fileinfo, gd, memcached, redis
+          extensions: mbstring, dom, fileinfo, gd, memcached, redis, pdo_sqlite
           coverage: xdebug
           tools: pecl, composer:v1
 

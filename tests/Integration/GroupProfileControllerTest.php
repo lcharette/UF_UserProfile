@@ -89,7 +89,7 @@ class GroupProfileControllerTest extends GroupControllerTest
     /**
      * @return GroupController
      */
-    private function getController(): GroupController
+    protected function getController(): GroupController
     {
         return new GroupProfileController($this->ci);
     }

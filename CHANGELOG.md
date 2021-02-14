@@ -51,7 +51,7 @@
 ## 0.0.1
 - Initial beta release
 
-[3.0.0]: https://github.com/lcharette/UF_UserProfile/compare/3.0.0...3.0.1
+[3.0.1]: https://github.com/lcharette/UF_UserProfile/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/lcharette/UF_UserProfile/compare/2.1.1...3.0.0
 [2.1.1]: https://github.com/lcharette/UF_UserProfile/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/lcharette/UF_UserProfile/compare/2.0.9...2.1.0

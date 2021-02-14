@@ -20,9 +20,10 @@ use UserFrosting\Sprinkle\UserProfile\Database\Models\Group;
  */
 class GroupProfileControllerTest extends GroupControllerTest
 {
-    protected function getController(): GroupController
+    public function testControllerConstructor()
     {
-        return new GroupProfileController($this->ci);
+        $controller = $this->getController();
+        $this->assertInstanceOf(GroupController::class, $controller);
     }
 
     /**
@@ -32,10 +33,13 @@ class GroupProfileControllerTest extends GroupControllerTest
     {
         parent::testControllerConstructorWithUser();
 
+        $controller = $this->getController();
+        $this->assertInstanceOf(GroupController::class, $controller);
+
         // Register custom scheme location
         $this->ci->locator->registerLocation('test', __DIR__);
 
-        return $this->getController();
+        return $controller;
     }
 
     /**
@@ -80,5 +84,13 @@ class GroupProfileControllerTest extends GroupControllerTest
         $ms = $this->ci->alerts;
         $messages = $ms->getAndClearMessages();
         $this->assertSame('success', end($messages)['type']);
+    }
+
+    /**
+     * @return GroupController
+     */
+    private function getController(): GroupController
+    {
+        return new GroupProfileController($this->ci);
     }
 }

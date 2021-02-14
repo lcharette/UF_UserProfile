@@ -1,5 +1,8 @@
 # Change Log
 
+## [3.0.1]
+- Fix for `Column not found` error when updating existing user or group ([#7] & [#8])
+
 ## [3.0.0]
 - Added support for FormGenerator 4.0.
 - Added automated testing.
@@ -62,3 +65,5 @@
 [2.0.1]: https://github.com/lcharette/UF_UserProfile/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/lcharette/UF_UserProfile/compare/0.0.1...2.0.0
 [#5]: https://github.com/lcharette/UF_UserProfile/pull/5
+[#7]: https://github.com/lcharette/UF_UserProfile/pull/7
+[#8]: https://github.com/lcharette/UF_UserProfile/pull/8
